@@ -65,6 +65,7 @@ module "metric_events" {
   common_metrics_vars = var.tenant_vars.metric_events.common_metric_values
   metrics_vars        = var.tenant_vars.metric_events.metrics
   metric_stream_vars  = var.tenant_vars.metric_events.metric_stream_values
+  s3_error_vars       = var.tenant_vars.metric_events.s3_error_values
 }
 
 module "ghes_dashboards" {
