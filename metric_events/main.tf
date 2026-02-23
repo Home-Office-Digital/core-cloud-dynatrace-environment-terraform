@@ -408,16 +408,19 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
     aggregation = var.metrics_vars.multipart_upload_4xx_errors.aggregation
     metric_key  = var.metrics_vars.multipart_upload_4xx_errors.metric_key
 
-    entity_filter {
+     entity_filter {
       dimension_key = var.s3_error_vars.dimension_key
-      conditions {
-        condition {
-          type     = var.s3_error_vars.entity_filter_condition1_type
-          operator = var.s3_error_vars.entity_filter_condition1_operator
-          value    = var.s3_error_vars.entity_filter_condition1_value
-        }
+      dynamic "conditions" {
+        for_each = var.s3_error_vars.dimension_key != "" ? [1] : []
+        content {
+          condition {
+            type     = var.s3_error_vars.entity_filter_condition1_type
+            operator = var.s3_error_vars.entity_filter_condition1_operator
+            value    = var.s3_error_vars.entity_filter_condition1_value
+          }
       }
     }
+  }
   }
 }
 # S3 Multipart Upload 5xx Errors
@@ -455,13 +458,16 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
 
     entity_filter {
       dimension_key = var.s3_error_vars.dimension_key
-      conditions {
-        condition {
-          type     = var.s3_error_vars.entity_filter_condition1_type
-          operator = var.s3_error_vars.entity_filter_condition1_operator
-          value    = var.s3_error_vars.entity_filter_condition1_value
-        }
+      dynamic "conditions" {
+        for_each = var.s3_error_vars.dimension_key != "" ? [1] : []
+        content {
+          condition {
+            type     = var.s3_error_vars.entity_filter_condition1_type
+            operator = var.s3_error_vars.entity_filter_condition1_operator
+            value    = var.s3_error_vars.entity_filter_condition1_value
+          }
       }
     }
+  }
   }
 }
