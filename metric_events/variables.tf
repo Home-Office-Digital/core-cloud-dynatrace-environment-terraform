@@ -74,6 +74,78 @@ variable "metrics_vars" {
         }))
       })
     })
+    metric_update = object({
+      summary               = string
+      description           = string
+      alert_condition       = string
+      dealerting_samples    = string
+      query_definition_type = string
+      aggregation           = string
+      metric_key            = string
+      critical = object({
+        enabled   = bool
+        title     = string
+        threshold = string
+        tags = list(object({
+          key   = string
+          value = string
+        }))
+      })
+    })
+    publish_error_rate = object({
+      summary               = string
+      description           = string
+      alert_condition       = string
+      dealerting_samples    = string
+      query_definition_type = string
+      aggregation           = string
+      metric_key            = string
+      critical = object({
+        enabled   = bool
+        title     = string
+        threshold = string
+        tags = list(object({
+          key   = string
+          value = string
+        }))
+      })
+    })
+    multipart_upload_4xx_errors = object({
+      summary               = string
+      description           = string
+      alert_condition       = string
+      dealerting_samples    = string
+      query_definition_type = string
+      aggregation           = string
+      metric_key            = string
+      critical = object({
+        enabled   = bool
+        title     = string
+        threshold = string
+        tags = list(object({
+          key   = string
+          value = string
+        }))
+      })
+    })
+    multipart_upload_5xx_errors = object({
+      summary               = string
+      description           = string
+      alert_condition       = string
+      dealerting_samples    = string
+      query_definition_type = string
+      aggregation           = string
+      metric_key            = string
+      critical = object({
+        enabled   = bool
+        title     = string
+        threshold = string
+        tags = list(object({
+          key   = string
+          value = string
+        }))
+      })
+    })
     disk_usage = object({
       summary               = string
       description           = string
