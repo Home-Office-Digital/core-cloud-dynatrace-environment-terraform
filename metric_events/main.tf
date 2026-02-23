@@ -287,12 +287,12 @@ resource "dynatrace_metric_events" "disk_utilization_critical_alerts" {
 resource "dynatrace_metric_events" "metric_update_critical_alerts" {
   count                      = var.metrics_vars.metric_update.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.metric_update.critical.enabled
-  event_entity_dimension_key = var.common_metrics_vars.event_entity_dimension_key
+  event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.metric_update.summary
   event_template {
     description = var.metrics_vars.metric_update.description
-    davis_merge = var.common_metrics_vars.davis_merge
-    event_type  = var.common_metrics_vars.event_type
+    davis_merge = var.metric_stream_vars.davis_merge
+    event_type  = var.metric_stream_vars.event_type
     title       = var.metrics_vars.metric_update.critical.title
     dynamic "metadata" {
       for_each = var.metrics_vars.metric_update.critical.tags
@@ -303,13 +303,13 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
     }
   }
   model_properties {
-    type               = var.common_metrics_vars.model_properties_type
+    type               = var.metric_stream_vars.model_properties_type
     alert_condition    = var.metrics_vars.metric_update.alert_condition
-    alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
+    alert_on_no_data   = var.metric_stream_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.metric_update.dealerting_samples
-    samples            = var.common_metrics_vars.samples
+    samples            = var.metric_stream_vars.samples
     threshold          = var.metrics_vars.metric_update.critical.threshold
-    violating_samples  = var.common_metrics_vars.violating_samples
+    violating_samples  = var.metric_stream_vars.violating_samples
   }
   query_definition {
     type        = var.metrics_vars.metric_update.query_definition_type
@@ -317,12 +317,12 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
     metric_key  = var.metrics_vars.metric_update.metric_key
 
     entity_filter {
-      dimension_key = var.common_metrics_vars.dimension_key
+      dimension_key = var.metric_stream_vars.dimension_key
       conditions {
         condition {
-          type     = var.common_metrics_vars.entity_filter_condition1_type
-          operator = var.common_metrics_vars.entity_filter_condition1_operator
-          value    = var.common_metrics_vars.entity_filter_condition1_value
+          type     = var.metric_stream_vars.entity_filter_condition1_type
+          operator = var.metric_stream_vars.entity_filter_condition1_operator
+          value    = var.metric_stream_vars.entity_filter_condition1_value
         }
       }
     }
@@ -333,12 +333,12 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
 resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
   count                      = var.metrics_vars.publish_error_rate.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.publish_error_rate.critical.enabled
-  event_entity_dimension_key = var.common_metrics_vars.event_entity_dimension_key
+  event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.publish_error_rate.summary
   event_template {
     description = var.metrics_vars.publish_error_rate.description
-    davis_merge = var.common_metrics_vars.davis_merge
-    event_type  = var.common_metrics_vars.event_type
+    davis_merge = var.metric_stream_vars.davis_merge
+    event_type  = var.metric_stream_vars.event_type
     title       = var.metrics_vars.publish_error_rate.critical.title
     dynamic "metadata" {
       for_each = var.metrics_vars.publish_error_rate.critical.tags
@@ -349,13 +349,13 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
     }
   }
   model_properties {
-    type               = var.common_metrics_vars.model_properties_type
+    type               = var.metric_stream_vars.model_properties_type
     alert_condition    = var.metrics_vars.publish_error_rate.alert_condition
-    alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
+    alert_on_no_data   = var.metric_stream_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.publish_error_rate.dealerting_samples
-    samples            = var.common_metrics_vars.samples
+    samples            = var.metric_stream_vars.samples
     threshold          = var.metrics_vars.publish_error_rate.critical.threshold
-    violating_samples  = var.common_metrics_vars.violating_samples
+    violating_samples  = var.metric_stream_vars.violating_samples
   }
   query_definition {
     type        = var.metrics_vars.publish_error_rate.query_definition_type
@@ -363,12 +363,12 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
     metric_key  = var.metrics_vars.publish_error_rate.metric_key
 
     entity_filter {
-      dimension_key = var.common_metrics_vars.dimension_key
+      dimension_key = var.metric_stream_vars.dimension_key
       conditions {
         condition {
-          type     = var.common_metrics_vars.entity_filter_condition1_type
-          operator = var.common_metrics_vars.entity_filter_condition1_operator
-          value    = var.common_metrics_vars.entity_filter_condition1_value
+          type     = var.metric_stream_vars.entity_filter_condition1_type
+          operator = var.metric_stream_vars.entity_filter_condition1_operator
+          value    = var.metric_stream_vars.entity_filter_condition1_value
         }
       }
     }
@@ -379,12 +379,12 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
 resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts" {
   count                      = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled
-  event_entity_dimension_key = var.common_metrics_vars.event_entity_dimension_key
+  event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_4xx_errors.summary
   event_template {
     description = var.metrics_vars.multipart_upload_4xx_errors.description
-    davis_merge = var.common_metrics_vars.davis_merge
-    event_type  = var.common_metrics_vars.event_type
+    davis_merge = var.s3_error_vars.davis_merge
+    event_type  = var.s3_error_vars.event_type
     title       = var.metrics_vars.multipart_upload_4xx_errors.critical.title
     dynamic "metadata" {
       for_each = var.metrics_vars.multipart_upload_4xx_errors.critical.tags
@@ -395,13 +395,13 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
     }
   }
   model_properties {
-    type               = var.common_metrics_vars.model_properties_type
+    type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_4xx_errors.alert_condition
-    alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
+    alert_on_no_data   = var.s3_error_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.multipart_upload_4xx_errors.dealerting_samples
-    samples            = var.common_metrics_vars.samples
+    samples            = var.s3_error_vars.samples
     threshold          = var.metrics_vars.multipart_upload_4xx_errors.critical.threshold
-    violating_samples  = var.common_metrics_vars.violating_samples
+    violating_samples  = var.s3_error_vars.violating_samples
   }
   query_definition {
     type        = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
@@ -409,12 +409,12 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
     metric_key  = var.metrics_vars.multipart_upload_4xx_errors.metric_key
 
     entity_filter {
-      dimension_key = var.common_metrics_vars.dimension_key
+      dimension_key = var.s3_error_vars.dimension_key
       conditions {
         condition {
-          type     = var.common_metrics_vars.entity_filter_condition1_type
-          operator = var.common_metrics_vars.entity_filter_condition1_operator
-          value    = var.common_metrics_vars.entity_filter_condition1_value
+          type     = var.s3_error_vars.entity_filter_condition1_type
+          operator = var.s3_error_vars.entity_filter_condition1_operator
+          value    = var.s3_error_vars.entity_filter_condition1_value
         }
       }
     }
@@ -424,12 +424,12 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
 resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts" {
   count                      = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled
-  event_entity_dimension_key = var.common_metrics_vars.event_entity_dimension_key
+  event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_5xx_errors.summary
   event_template {
     description = var.metrics_vars.multipart_upload_5xx_errors.description
-    davis_merge = var.common_metrics_vars.davis_merge
-    event_type  = var.common_metrics_vars.event_type
+    davis_merge = var.s3_error_vars.davis_merge
+    event_type  = var.s3_error_vars.event_type
     title       = var.metrics_vars.multipart_upload_5xx_errors.critical.title
     dynamic "metadata" {
       for_each = var.metrics_vars.multipart_upload_5xx_errors.critical.tags
@@ -440,13 +440,13 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
     }
   }
   model_properties {
-    type               = var.common_metrics_vars.model_properties_type
+    type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_5xx_errors.alert_condition
-    alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
+    alert_on_no_data   = var.s3_error_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.multipart_upload_5xx_errors.dealerting_samples
-    samples            = var.common_metrics_vars.samples
+    samples            = var.s3_error_vars.samples
     threshold          = var.metrics_vars.multipart_upload_5xx_errors.critical.threshold
-    violating_samples  = var.common_metrics_vars.violating_samples
+    violating_samples  = var.s3_error_vars.violating_samples
   }
   query_definition {
     type        = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
@@ -454,12 +454,12 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
     metric_key  = var.metrics_vars.multipart_upload_5xx_errors.metric_key
 
     entity_filter {
-      dimension_key = var.common_metrics_vars.dimension_key
+      dimension_key = var.s3_error_vars.dimension_key
       conditions {
         condition {
-          type     = var.common_metrics_vars.entity_filter_condition1_type
-          operator = var.common_metrics_vars.entity_filter_condition1_operator
-          value    = var.common_metrics_vars.entity_filter_condition1_value
+          type     = var.s3_error_vars.entity_filter_condition1_type
+          operator = var.s3_error_vars.entity_filter_condition1_operator
+          value    = var.s3_error_vars.entity_filter_condition1_value
         }
       }
     }

@@ -15,6 +15,40 @@ variable "common_metrics_vars" {
     entity_filter_condition1_value    = string
   })
 }
+variable "metric_stream_vars" {
+  description = "metric stream configuration variables"
+  type = object({
+    model_properties_type = string
+    alert_on_no_data      = bool
+    samples               = string
+    violating_samples     = string
+    davis_merge           = bool
+    event_type            = string
+
+    event_entity_dimension_key        = string
+    dimension_key                     = string
+    entity_filter_condition1_type     = string
+    entity_filter_condition1_operator = string
+    entity_filter_condition1_value    = string
+  })
+}
+variable "s3_error_vars" {
+  description = "S3 error configuration variables"
+  type = object({
+    model_properties_type = string
+    alert_on_no_data      = bool
+    samples               = string
+    violating_samples     = string
+    davis_merge           = bool
+    event_type            = string
+
+    event_entity_dimension_key        = string
+    dimension_key                     = string
+    entity_filter_condition1_type     = string
+    entity_filter_condition1_operator = string
+    entity_filter_condition1_value    = string
+  })
+}
 
 
 # config related to metrics
