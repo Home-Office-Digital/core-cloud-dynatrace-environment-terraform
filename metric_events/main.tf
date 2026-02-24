@@ -283,191 +283,148 @@ resource "dynatrace_metric_events" "disk_utilization_critical_alerts" {
   }
 }
 
-# # Metric Update critical alerts
-# resource "dynatrace_metric_events" "metric_update_critical_alerts" {
-#   count                      = var.metrics_vars.metric_update.critical.enabled == true ? 1 : 0
-#   enabled                    = var.metrics_vars.metric_update.critical.enabled
-#   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
-#   summary                    = var.metrics_vars.metric_update.summary
-#   event_template {
-#     description = var.metrics_vars.metric_update.description
-#     davis_merge = var.metric_stream_vars.davis_merge
-#     event_type  = var.metric_stream_vars.event_type
-#     title       = var.metrics_vars.metric_update.critical.title
-#     dynamic "metadata" {
-#       for_each = var.metrics_vars.metric_update.critical.tags
-#       content {
-#         metadata_key   = metadata.value.key
-#         metadata_value = metadata.value.value
-#       }
-#     }
-#   }
-#   model_properties {
-#     type               = var.metric_stream_vars.model_properties_type
-#     alert_condition    = var.metrics_vars.metric_update.alert_condition
-#     alert_on_no_data   = var.metric_stream_vars.alert_on_no_data
-#     dealerting_samples = var.metrics_vars.metric_update.dealerting_samples
-#     samples            = var.metric_stream_vars.samples
-#     threshold          = var.metrics_vars.metric_update.critical.threshold
-#     violating_samples  = var.metric_stream_vars.violating_samples
-#   }
-#   query_definition {
-#     type        = var.metrics_vars.metric_update.query_definition_type
-#     aggregation = var.metrics_vars.metric_update.aggregation
-#     metric_key  = var.metrics_vars.metric_update.metric_key
+# Metric Update critical alerts (METRIC_SELECTOR)
+resource "dynatrace_metric_events" "metric_update_critical_alerts" {
+  count   = var.metrics_vars.metric_update.critical.enabled ? 1 : 0
+  enabled = var.metrics_vars.metric_update.critical.enabled
+  event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
+  summary = var.metrics_vars.metric_update.summary
 
-#     entity_filter {
-#       dimension_key = var.metric_stream_vars.dimension_key
-#       conditions {
-#         condition {
-#           type     = var.metric_stream_vars.entity_filter_condition1_type
-#           operator = var.metric_stream_vars.entity_filter_condition1_operator
-#           value    = var.metric_stream_vars.entity_filter_condition1_value
-#         }
-#       }
-#     }
-#   }
-# }
+  event_template {
+    description = var.metrics_vars.metric_update.description
+    davis_merge = var.metric_stream_vars.davis_merge
+    event_type  = var.metric_stream_vars.event_type
+    title       = var.metrics_vars.metric_update.critical.title
 
-# # # Publish Error Rate alerts
-# # resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
-# #   count                      = var.metrics_vars.publish_error_rate.critical.enabled == true ? 1 : 0
-# #   enabled                    = var.metrics_vars.publish_error_rate.critical.enabled
-# #   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
-# #   summary                    = var.metrics_vars.publish_error_rate.summary
-# #   event_template {
-# #     description = var.metrics_vars.publish_error_rate.description
-# #     davis_merge = var.metric_stream_vars.davis_merge
-# #     event_type  = var.metric_stream_vars.event_type
-# #     title       = var.metrics_vars.publish_error_rate.critical.title
-# #     dynamic "metadata" {
-# #       for_each = var.metrics_vars.publish_error_rate.critical.tags
-# #       content {
-# #         metadata_key   = metadata.value.key
-# #         metadata_value = metadata.value.value
-# #       }
-# #     }
-# #   }
-# #   model_properties {
-# #     type               = var.metric_stream_vars.model_properties_type
-# #     alert_condition    = var.metrics_vars.publish_error_rate.alert_condition
-# #     alert_on_no_data   = var.metric_stream_vars.alert_on_no_data
-# #     dealerting_samples = var.metrics_vars.publish_error_rate.dealerting_samples
-# #     samples            = var.metric_stream_vars.samples
-# #     threshold          = var.metrics_vars.publish_error_rate.critical.threshold
-# #     violating_samples  = var.metric_stream_vars.violating_samples
-# #   }
-# #   query_definition {
-# #     type        = var.metrics_vars.publish_error_rate.query_definition_type
-# #     aggregation = var.metrics_vars.publish_error_rate.aggregation
-# #     metric_key  = var.metrics_vars.publish_error_rate.metric_key
+    dynamic "metadata" {
+      for_each = var.metrics_vars.metric_update.critical.tags
+      content {
+        metadata_key   = metadata.value.key
+        metadata_value = metadata.value.value
+      }
+    }
+  }
 
-# #     entity_filter {
-# #       dimension_key = var.metric_stream_vars.dimension_key
-# #       conditions {
-# #         condition {
-# #           type     = var.metric_stream_vars.entity_filter_condition1_type
-# # #           operator = var.metric_stream_vars.entity_filter_condition1_operator
-#           value    = var.metric_stream_vars.entity_filter_condition1_value
-#         }
-#       }
-#     }
-#   }
-# }
+  model_properties {
+    type               = var.metric_stream_vars.model_properties_type
+    alert_condition    = var.metrics_vars.metric_update.alert_condition
+    alert_on_no_data   = var.metrics_vars.metric_update.alert_on_no_data
+    dealerting_samples = var.metrics_vars.metric_update.dealerting_samples
+    samples            = var.metrics_vars.metric_update.samples
+    threshold          = var.metrics_vars.metric_update.critical.threshold
+    violating_samples  = var.metrics_vars.metric_update.violating_samples
+  }
 
-# # S3 Multipart Upload 4xx Errors
-# resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts" {
-#   count                      = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled == true ? 1 : 0
-#   enabled                    = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled
-#   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
-#   summary                    = var.metrics_vars.multipart_upload_4xx_errors.summary
-#   event_template {
-#     description = var.metrics_vars.multipart_upload_4xx_errors.description
-#     davis_merge = var.s3_error_vars.davis_merge
-#     event_type  = var.s3_error_vars.event_type
-#     title       = var.metrics_vars.multipart_upload_4xx_errors.critical.title
-#     dynamic "metadata" {
-#       for_each = var.metrics_vars.multipart_upload_4xx_errors.critical.tags
-#       content {
-#         metadata_key   = metadata.value.key
-#         metadata_value = metadata.value.value
-#       }
-#     }
-#   }
-#   model_properties {
-#     type               = var.s3_error_vars.model_properties_type
-#     alert_condition    = var.metrics_vars.multipart_upload_4xx_errors.alert_condition
-#     alert_on_no_data   = var.s3_error_vars.alert_on_no_data
-#     dealerting_samples = var.metrics_vars.multipart_upload_4xx_errors.dealerting_samples
-#     samples            = var.s3_error_vars.samples
-#     threshold          = var.metrics_vars.multipart_upload_4xx_errors.critical.threshold
-#     violating_samples  = var.s3_error_vars.violating_samples
-#   }
-#   query_definition {
-#     type        = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
-#     aggregation = var.metrics_vars.multipart_upload_4xx_errors.aggregation
-#     metric_key  = var.metrics_vars.multipart_upload_4xx_errors.metric_key
+  query_definition {
+    type           = var.metrics_vars.metric_update.query_definition_type
+    metric_selector = var.metrics_vars.metric_update.metric_selector
+    aggregation    = var.metrics_vars.metric_update.aggregation
+  }
+}
 
-#      entity_filter {
-#       dimension_key = var.s3_error_vars.dimension_key
-#       dynamic "conditions" {
-#         for_each = var.s3_error_vars.dimension_key != "" ? [1] : []
-#         content {
-#           condition {
-#             type     = var.s3_error_vars.entity_filter_condition1_type
-#             operator = var.s3_error_vars.entity_filter_condition1_operator
-#             value    = var.s3_error_vars.entity_filter_condition1_value
-#           }
-#       }
-#     }
-#   }
-#   }
-# }
-# # S3 Multipart Upload 5xx Errors
-# resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts" {
-#   count                      = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled == true ? 1 : 0
-#   enabled                    = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled
-#   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
-#   summary                    = var.metrics_vars.multipart_upload_5xx_errors.summary
-#   event_template {
-#     description = var.metrics_vars.multipart_upload_5xx_errors.description
-#     davis_merge = var.s3_error_vars.davis_merge
-#     event_type  = var.s3_error_vars.event_type
-#     title       = var.metrics_vars.multipart_upload_5xx_errors.critical.title
-#     dynamic "metadata" {
-#       for_each = var.metrics_vars.multipart_upload_5xx_errors.critical.tags
-#       content {
-#         metadata_key   = metadata.value.key
-#         metadata_value = metadata.value.value
-#       }
-#     }
-#   }
-#   model_properties {
-#     type               = var.s3_error_vars.model_properties_type
-#     alert_condition    = var.metrics_vars.multipart_upload_5xx_errors.alert_condition
-#     alert_on_no_data   = var.s3_error_vars.alert_on_no_data
-#     dealerting_samples = var.metrics_vars.multipart_upload_5xx_errors.dealerting_samples
-#     samples            = var.s3_error_vars.samples
-#     threshold          = var.metrics_vars.multipart_upload_5xx_errors.critical.threshold
-#     violating_samples  = var.s3_error_vars.violating_samples
-#   }
-#   query_definition {
-#     type        = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
-#     aggregation = var.metrics_vars.multipart_upload_5xx_errors.aggregation
-#     metric_key  = var.metrics_vars.multipart_upload_5xx_errors.metric_key
+# Publish Error Rate alerts
+resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
+  count                      = var.metrics_vars.publish_error_rate.critical.enabled ? 1 : 0
+  enabled                    = var.metrics_vars.publish_error_rate.critical.enabled
+  event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
+  summary                    = var.metrics_vars.publish_error_rate.summary
+  event_template {
+    description = var.metrics_vars.publish_error_rate.description
+    davis_merge = var.metric_stream_vars.davis_merge
+    event_type  = var.metric_stream_vars.event_type
+    title       = var.metrics_vars.publish_error_rate.critical.title
+    dynamic "metadata" {
+      for_each = var.metrics_vars.publish_error_rate.critical.tags
+      content {
+        metadata_key   = metadata.value.key
+        metadata_value = metadata.value.value
+      }
+    }
+  }
+  model_properties {
+    type               = var.metric_stream_vars.model_properties_type
+    alert_condition    = var.metrics_vars.publish_error_rate.alert_condition
+    alert_on_no_data   = var.metric_stream_vars.alert_on_no_data
+    dealerting_samples = var.metrics_vars.publish_error_rate.dealerting_samples
+    samples            = var.metric_stream_vars.samples
+    threshold          = var.metrics_vars.publish_error_rate.critical.threshold
+    violating_samples  = var.metric_stream_vars.violating_samples
+  }
+  query_definition {
+    type        = var.metrics_vars.publish_error_rate.query_definition_type
+    aggregation = var.metrics_vars.publish_error_rate.aggregation
+    metric_key  = var.metrics_vars.publish_error_rate.metric_key
+        }
+      }
+resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts" {
+  count   = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled ? 1 : 0
+  enabled = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled
 
-#     entity_filter {
-#       dimension_key = var.s3_error_vars.dimension_key
-#       dynamic "conditions" {
-#         for_each = var.s3_error_vars.dimension_key != "" ? [1] : []
-#         content {
-#           condition {
-#             type     = var.s3_error_vars.entity_filter_condition1_type
-#             operator = var.s3_error_vars.entity_filter_condition1_operator
-#             value    = var.s3_error_vars.entity_filter_condition1_value
-#           }
-#       }
-#     }
-#   }
-#   }
-# }
+  event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
+  summary                    = var.metrics_vars.multipart_upload_4xx_errors.summary
+
+  event_template {
+    description = var.metrics_vars.multipart_upload_4xx_errors.description
+    davis_merge = var.s3_error_vars.davis_merge
+    event_type  = var.s3_error_vars.event_type
+    title       = var.metrics_vars.multipart_upload_4xx_errors.critical.title
+
+    dynamic "metadata" {
+      for_each = var.metrics_vars.multipart_upload_4xx_errors.critical.tags
+      content {
+        metadata_key   = metadata.value.key
+        metadata_value = metadata.value.value
+      }
+    }
+  }
+  model_properties {
+    type               = var.s3_error_vars.model_properties_type
+    alert_condition    = var.metrics_vars.multipart_upload_4xx_errors.alert_condition
+    alert_on_no_data   = var.metrics_vars.multipart_upload_4xx_errors.alert_on_no_data
+    dealerting_samples = var.metrics_vars.multipart_upload_4xx_errors.dealerting_samples
+    samples            = var.metrics_vars.multipart_upload_4xx_errors.samples
+    threshold          = var.metrics_vars.multipart_upload_4xx_errors.critical.threshold
+    violating_samples  = var.metrics_vars.multipart_upload_4xx_errors.violating_samples
+  }
+  query_definition {
+    type            = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
+    metric_selector = var.metrics_vars.multipart_upload_4xx_errors.metric_selector
+
+    # Choose ONE:
+    aggregation     = var.metrics_vars.multipart_upload_4xx_errors.aggregation
+  }
+}
+# S3 Multipart Upload 5xx Errors
+resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts" {
+  count                      = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled ? 1 : 0
+  enabled                    = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled
+  event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
+  summary                    = var.metrics_vars.multipart_upload_5xx_errors.summary
+  event_template {
+    description = var.metrics_vars.multipart_upload_5xx_errors.description
+    davis_merge = var.s3_error_vars.davis_merge
+    event_type  = var.s3_error_vars.event_type
+    title       = var.metrics_vars.multipart_upload_5xx_errors.critical.title
+    dynamic "metadata" {
+      for_each = var.metrics_vars.multipart_upload_5xx_errors.critical.tags
+      content {
+        metadata_key   = metadata.value.key
+        metadata_value = metadata.value.value
+      }
+    }
+  }
+  model_properties {
+    type               = var.s3_error_vars.model_properties_type
+    alert_condition    = var.metrics_vars.multipart_upload_5xx_errors.alert_condition
+    alert_on_no_data   = var.s3_error_vars.alert_on_no_data
+    dealerting_samples = var.metrics_vars.multipart_upload_5xx_errors.dealerting_samples
+    samples            = var.s3_error_vars.samples
+    threshold          = var.metrics_vars.multipart_upload_5xx_errors.critical.threshold
+    violating_samples  = var.s3_error_vars.violating_samples
+  }
+  query_definition {
+    type        = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
+    aggregation = var.metrics_vars.multipart_upload_5xx_errors.aggregation
+    metric_key  = var.metrics_vars.multipart_upload_5xx_errors.metric_key
+  }
+}

@@ -64,6 +64,8 @@ module "metric_events" {
   ) && var.tenant_vars.metric_events.common_metric_values != null && var.tenant_vars.metric_events.metrics != null) ? 1 : 0
   common_metrics_vars = var.tenant_vars.metric_events.common_metric_values
   metrics_vars        = var.tenant_vars.metric_events.metrics
+  metric_stream_vars  = var.tenant_vars.metric_events.metric_stream_values
+  s3_error_vars       = var.tenant_vars.metric_events.s3_error_values 
 }
 
 module "ghes_dashboards" {
@@ -291,5 +293,3 @@ module "platform_dashboards" {
   #mandatory if enabled with var.tenant_vars.platform_dashboards hence no checks
   groups_to_share = var.tenant_vars.platform_dashboards.groups
 }
-
-
