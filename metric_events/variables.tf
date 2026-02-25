@@ -27,6 +27,7 @@ variable "metric_stream_vars" {
 
     event_entity_dimension_key        = string
     dimension_key                     = string
+    metric_selector                   = string
   })
 }
 variable "s3_error_vars" {
@@ -41,6 +42,7 @@ variable "s3_error_vars" {
 
     event_entity_dimension_key        = string
     dimension_key                     = string
+    metric_selector                   = string
   })
 }
 # config related to metrics
@@ -118,7 +120,7 @@ variable "metrics_vars" {
         }))
       })
     })
-    publlish_error_rate = object({
+    publish_error_rate = object({
       summary               = string
       description           = string
       alert_condition       = string

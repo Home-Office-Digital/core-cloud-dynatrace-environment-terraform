@@ -308,16 +308,16 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
   model_properties {
     type               = var.metric_stream_vars.model_properties_type
     alert_condition    = var.metrics_vars.metric_update.alert_condition
-    alert_on_no_data   = var.metrics_vars.metric_update.alert_on_no_data
+    alert_on_no_data   = var.metric_stream_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.metric_update.dealerting_samples
-    samples            = var.metrics_vars.metric_update.samples
+    samples            = var.metric_stream_vars.samples
     threshold          = var.metrics_vars.metric_update.critical.threshold
-    violating_samples  = var.metrics_vars.metric_update.violating_samples
+    violating_samples  = var.metric_stream_vars.violating_samples
   }
 
   query_definition {
     type           = var.metrics_vars.metric_update.query_definition_type
-    metric_selector = var.metrics_vars.metric_update.metric_selector
+    metric_selector = var.metric_stream_vars.metric_selector
     aggregation    = var.metrics_vars.metric_update.aggregation
   }
 }
@@ -380,15 +380,15 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
   model_properties {
     type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_4xx_errors.alert_condition
-    alert_on_no_data   = var.metrics_vars.multipart_upload_4xx_errors.alert_on_no_data
+    alert_on_no_data   = var.s3_error_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.multipart_upload_4xx_errors.dealerting_samples
-    samples            = var.metrics_vars.multipart_upload_4xx_errors.samples
+    samples            = var.s3_error_vars.samples
     threshold          = var.metrics_vars.multipart_upload_4xx_errors.critical.threshold
-    violating_samples  = var.metrics_vars.multipart_upload_4xx_errors.violating_samples
+    violating_samples  = var.s3_error_vars.violating_samples
   }
   query_definition {
     type            = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
-    metric_selector = var.metrics_vars.multipart_upload_4xx_errors.metric_selector
+    metric_selector = var.s3_error_vars.metric_selector
 
     # Choose ONE:
     aggregation     = var.metrics_vars.multipart_upload_4xx_errors.aggregation
