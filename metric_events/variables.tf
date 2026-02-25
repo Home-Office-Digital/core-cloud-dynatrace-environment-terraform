@@ -108,7 +108,7 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-      aggregation           = string
+     #  aggregation           = string
       metric_key            = string
       critical = object({
         enabled   = bool
@@ -126,7 +126,7 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-      aggregation           = string
+     #  aggregation           = string
       metric_key            = string
       critical = object({
         enabled   = bool
@@ -144,7 +144,7 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-      aggregation           = string
+     #  aggregation           = string
       metric_key            = string
       critical = object({
         enabled   = bool
@@ -162,7 +162,7 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-      aggregation           = string
+     #  aggregation           = string
       metric_key            = string
       critical = object({
         enabled   = bool

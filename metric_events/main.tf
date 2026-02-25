@@ -318,7 +318,7 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
   query_definition {
     type            = var.metrics_vars.metric_update.query_definition_type
     metric_selector = var.metric_stream_vars.metric_selector
-    aggregation     = var.metrics_vars.metric_update.aggregation
+   #  aggregation     = var.metrics_vars.metric_update.aggregation
   }
 }
 
@@ -357,7 +357,7 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
   query_definition {
     type            = var.metrics_vars.publish_error_rate.query_definition_type
     metric_selector = var.metric_stream_vars.metric_selector
-    aggregation     = var.metrics_vars.publish_error_rate.aggregation
+   #  aggregation     = var.metrics_vars.publish_error_rate.aggregation
   }
 }
 
@@ -396,7 +396,7 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
   query_definition {
     type            = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
     metric_selector = var.s3_error_vars.metric_selector
-    aggregation     = var.metrics_vars.multipart_upload_4xx_errors.aggregation
+   #  aggregation     = var.metrics_vars.multipart_upload_4xx_errors.aggregation
   }
 }
 
@@ -435,6 +435,6 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
   query_definition {
     type            = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
     metric_selector = var.s3_error_vars.metric_selector
-    aggregation     = var.metrics_vars.multipart_upload_5xx_errors.aggregation
+   #  aggregation     = var.metrics_vars.multipart_upload_5xx_errors.aggregation
   }
 }
