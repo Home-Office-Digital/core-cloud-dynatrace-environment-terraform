@@ -285,7 +285,7 @@ resource "dynatrace_metric_events" "disk_utilization_critical_alerts" {
 
 # Metric Update critical alerts (METRIC_SELECTOR)
 resource "dynatrace_metric_events" "metric_update_critical_alerts" {
-  count                      = var.metrics_vars.metric_update.critical.enabled ? 1 : 0
+  count                      = var.metrics_vars.metric_update.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.metric_update.critical.enabled
   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.metric_update.summary
@@ -324,7 +324,7 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
 
 # Publish Error Rate alerts
 resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
-  count                      = var.metrics_vars.publish_error_rate.critical.enabled ? 1 : 0
+  count                      = var.metrics_vars.publish_error_rate.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.publish_error_rate.critical.enabled
   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.publish_error_rate.summary
@@ -363,7 +363,7 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
 
 # S3 Multipart Upload 4xx Errors
 resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts" {
-  count                      = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled ? 1 : 0
+  count                      = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled
   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_4xx_errors.summary
@@ -402,7 +402,7 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
 
 # S3 Multipart Upload 5xx Errors
 resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts" {
-  count                      = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled ? 1 : 0
+  count                      = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled == true ? 1 : 0
   enabled                    = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled
   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_5xx_errors.summary
