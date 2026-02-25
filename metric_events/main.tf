@@ -285,10 +285,10 @@ resource "dynatrace_metric_events" "disk_utilization_critical_alerts" {
 
 # Metric Update critical alerts (METRIC_SELECTOR)
 resource "dynatrace_metric_events" "metric_update_critical_alerts" {
-  count   = var.metrics_vars.metric_update.critical.enabled ? 1 : 0
-  enabled = var.metrics_vars.metric_update.critical.enabled
+  count                      = var.metrics_vars.metric_update.critical.enabled ? 1 : 0
+  enabled                    = var.metrics_vars.metric_update.critical.enabled
   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
-  summary = var.metrics_vars.metric_update.summary
+  summary                    = var.metrics_vars.metric_update.summary
 
   event_template {
     description = var.metrics_vars.metric_update.description
@@ -316,9 +316,9 @@ resource "dynatrace_metric_events" "metric_update_critical_alerts" {
   }
 
   query_definition {
-    type           = var.metrics_vars.metric_update.query_definition_type
+    type            = var.metrics_vars.metric_update.query_definition_type
     metric_selector = var.metric_stream_vars.metric_selector
-    aggregation    = var.metrics_vars.metric_update.aggregation
+    aggregation     = var.metrics_vars.metric_update.aggregation
   }
 }
 
@@ -328,11 +328,13 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
   enabled                    = var.metrics_vars.publish_error_rate.critical.enabled
   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.publish_error_rate.summary
+  
   event_template {
     description = var.metrics_vars.publish_error_rate.description
     davis_merge = var.metric_stream_vars.davis_merge
     event_type  = var.metric_stream_vars.event_type
     title       = var.metrics_vars.publish_error_rate.critical.title
+    
     dynamic "metadata" {
       for_each = var.metrics_vars.publish_error_rate.critical.tags
       content {
@@ -341,6 +343,7 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
       }
     }
   }
+  
   model_properties {
     type               = var.metric_stream_vars.model_properties_type
     alert_condition    = var.metrics_vars.publish_error_rate.alert_condition
@@ -350,16 +353,18 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
     threshold          = var.metrics_vars.publish_error_rate.critical.threshold
     violating_samples  = var.metric_stream_vars.violating_samples
   }
+  
   query_definition {
-    type        = var.metrics_vars.publish_error_rate.query_definition_type
-    aggregation = var.metrics_vars.publish_error_rate.aggregation
-    metric_key  = var.metrics_vars.publish_error_rate.metric_key
-        }
-      }
-resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts" {
-  count   = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled ? 1 : 0
-  enabled = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled
+    type            = var.metrics_vars.publish_error_rate.query_definition_type
+    metric_selector = var.metric_stream_vars.metric_selector
+    aggregation     = var.metrics_vars.publish_error_rate.aggregation
+  }
+}
 
+# S3 Multipart Upload 4xx Errors
+resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts" {
+  count                      = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled ? 1 : 0
+  enabled                    = var.metrics_vars.multipart_upload_4xx_errors.critical.enabled
   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_4xx_errors.summary
 
@@ -377,6 +382,7 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
       }
     }
   }
+  
   model_properties {
     type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_4xx_errors.alert_condition
@@ -386,25 +392,27 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
     threshold          = var.metrics_vars.multipart_upload_4xx_errors.critical.threshold
     violating_samples  = var.s3_error_vars.violating_samples
   }
+  
   query_definition {
     type            = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
     metric_selector = var.s3_error_vars.metric_selector
-
-    # Choose ONE:
     aggregation     = var.metrics_vars.multipart_upload_4xx_errors.aggregation
   }
 }
+
 # S3 Multipart Upload 5xx Errors
 resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts" {
   count                      = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled ? 1 : 0
   enabled                    = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled
   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_5xx_errors.summary
+  
   event_template {
     description = var.metrics_vars.multipart_upload_5xx_errors.description
     davis_merge = var.s3_error_vars.davis_merge
     event_type  = var.s3_error_vars.event_type
     title       = var.metrics_vars.multipart_upload_5xx_errors.critical.title
+    
     dynamic "metadata" {
       for_each = var.metrics_vars.multipart_upload_5xx_errors.critical.tags
       content {
@@ -413,6 +421,7 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
       }
     }
   }
+  
   model_properties {
     type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_5xx_errors.alert_condition
@@ -422,9 +431,10 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
     threshold          = var.metrics_vars.multipart_upload_5xx_errors.critical.threshold
     violating_samples  = var.s3_error_vars.violating_samples
   }
+  
   query_definition {
-    type        = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
-    aggregation = var.metrics_vars.multipart_upload_5xx_errors.aggregation
-    metric_key  = var.metrics_vars.multipart_upload_5xx_errors.metric_key
+    type            = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
+    metric_selector = var.s3_error_vars.metric_selector
+    aggregation     = var.metrics_vars.multipart_upload_5xx_errors.aggregation
   }
 }
