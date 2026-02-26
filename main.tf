@@ -276,7 +276,6 @@ module "aws_cwl_s3_bucket" {
   lifecycle_expiration_days = each.value.lifecycle_expiration_days
   days_after_initiation     = each.value.days_after_initiation
   ingestion_type            = each.value.ingestion_type
-  environment               = each.value.environment
 }
 
 module "monitoring_k8s_clusters" {
