@@ -79,6 +79,11 @@ variable "cloudwatch_log_group_name" {
   description = "CloudWatch log group name"
 }
 
+variable "environment" {
+  description = "Environment name (e.g. DynatraceTest, DynatraceSandbox) should match the lambda iam role name as created in the sender account. This allows to restrict which principals can put subscription filters on the destination environment."
+  type        = string
+}
+
 variable "destination_name" {
   description = "Name for the CloudWatch Logs destination"
   default     = "cc-cosmos-dynatrace-firehose"
