@@ -144,7 +144,7 @@ resource "aws_cloudwatch_log_destination_policy" "cwl_dt_subscription_policy" {
           StringLike = {
             # Only allow Lambda roles with the matching environment suffix
             # e.g., "-DynatraceTest-lambda-function" or "-DynatraceSandbox-lambda-function"
-            "aws:PrincipalArn" = "arn:aws:iam::*:role/*-${var.environment}-lambda-function"
+            "aws:PrincipalArn" = "arn:aws:iam::*:role/cc-cosmos-cwl-firehose-${var.environment}-lambda-function"
           }
         }
         Action   = "logs:PutSubscriptionFilter"
