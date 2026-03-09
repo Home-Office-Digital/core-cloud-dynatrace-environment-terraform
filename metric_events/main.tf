@@ -451,7 +451,7 @@ resource "dynatrace_metric_events" "finops_tag_audit_lambda_errors_warning_alert
     davis_merge = var.common_metrics_vars.davis_merge
     event_type  = var.common_metrics_vars.event_type
     title       = var.metrics_vars.finops_tag_audit_lambda_errors.warning.title
-    
+
     dynamic "metadata" {
       for_each = var.metrics_vars.finops_tag_audit_lambda_errors.warning.tags
       content {
@@ -467,7 +467,7 @@ resource "dynatrace_metric_events" "finops_tag_audit_lambda_errors_warning_alert
     alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.finops_tag_audit_lambda_errors.dealerting_samples
     samples            = var.lambda_error_values.samples
-    threshold          = var.metrics_vars.finops_tag_audit_lambda_errors.critical.threshold
+    threshold          = var.metrics_vars.finops_tag_audit_lambda_errors.warning.threshold
     violating_samples  = var.lambda_error_values.violating_samples
   }
 
