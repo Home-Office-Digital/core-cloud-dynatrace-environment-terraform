@@ -328,13 +328,13 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
   enabled                    = var.metrics_vars.publish_error_rate.critical.enabled
   event_entity_dimension_key = var.metric_stream_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.publish_error_rate.summary
-  
+
   event_template {
     description = var.metrics_vars.publish_error_rate.description
     davis_merge = var.metric_stream_vars.davis_merge
     event_type  = var.metric_stream_vars.event_type
     title       = var.metrics_vars.publish_error_rate.critical.title
-    
+
     dynamic "metadata" {
       for_each = var.metrics_vars.publish_error_rate.critical.tags
       content {
@@ -343,7 +343,7 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
       }
     }
   }
-  
+
   model_properties {
     type               = var.metric_stream_vars.model_properties_type
     alert_condition    = var.metrics_vars.publish_error_rate.alert_condition
@@ -353,7 +353,7 @@ resource "dynatrace_metric_events" "publish_error_rate_critical_alerts" {
     threshold          = var.metrics_vars.publish_error_rate.critical.threshold
     violating_samples  = var.metric_stream_vars.violating_samples
   }
-  
+
   query_definition {
     type            = var.metrics_vars.publish_error_rate.query_definition_type
     metric_selector = var.metric_stream_vars.metric_selector
@@ -382,7 +382,7 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
       }
     }
   }
-  
+
   model_properties {
     type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_4xx_errors.alert_condition
@@ -392,7 +392,7 @@ resource "dynatrace_metric_events" "multipart_upload_4xx_errors_critical_alerts"
     threshold          = var.metrics_vars.multipart_upload_4xx_errors.critical.threshold
     violating_samples  = var.s3_error_vars.violating_samples
   }
-  
+
   query_definition {
     type            = var.metrics_vars.multipart_upload_4xx_errors.query_definition_type
     metric_selector = var.s3_error_vars.metric_selector
@@ -406,13 +406,13 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
   enabled                    = var.metrics_vars.multipart_upload_5xx_errors.critical.enabled
   event_entity_dimension_key = var.s3_error_vars.event_entity_dimension_key
   summary                    = var.metrics_vars.multipart_upload_5xx_errors.summary
-  
+
   event_template {
     description = var.metrics_vars.multipart_upload_5xx_errors.description
     davis_merge = var.s3_error_vars.davis_merge
     event_type  = var.s3_error_vars.event_type
     title       = var.metrics_vars.multipart_upload_5xx_errors.critical.title
-    
+
     dynamic "metadata" {
       for_each = var.metrics_vars.multipart_upload_5xx_errors.critical.tags
       content {
@@ -421,7 +421,7 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
       }
     }
   }
-  
+
   model_properties {
     type               = var.s3_error_vars.model_properties_type
     alert_condition    = var.metrics_vars.multipart_upload_5xx_errors.alert_condition
@@ -431,10 +431,49 @@ resource "dynatrace_metric_events" "multipart_upload_5xx_errors_critical_alerts"
     threshold          = var.metrics_vars.multipart_upload_5xx_errors.critical.threshold
     violating_samples  = var.s3_error_vars.violating_samples
   }
-  
+
   query_definition {
     type            = var.metrics_vars.multipart_upload_5xx_errors.query_definition_type
     metric_selector = var.s3_error_vars.metric_selector
    #  aggregation     = var.metrics_vars.multipart_upload_5xx_errors.aggregation
+  }
+}
+
+# Tag Audit Lambda Errors
+resource "dynatrace_metric_events" "finops_tag_audit_lambda_errors_warning_alerts" {
+  count                      = var.metrics_vars.finops_tag_audit_lambda_errors.warning.enabled == true ? 1 : 0
+  enabled                    = var.metrics_vars.finops_tag_audit_lambda_errors.warning.enabled
+  event_entity_dimension_key = var.common_metrics_vars.event_entity_dimension_key
+  summary                    = var.metrics_vars.finops_tag_audit_lambda_errors.summary
+
+  event_template {
+    description = var.metrics_vars.finops_tag_audit_lambda_errors.description
+    davis_merge = var.common_metrics_vars.davis_merge
+    event_type  = var.common_metrics_vars.event_type
+    title       = var.metrics_vars.finops_tag_audit_lambda_errors.warning.title
+
+    dynamic "metadata" {
+      for_each = var.metrics_vars.finops_tag_audit_lambda_errors.warning.tags
+      content {
+        metadata_key   = metadata.value.key
+        metadata_value = metadata.value.value
+      }
+    }
+  }
+
+  model_properties {
+    type               = var.common_metrics_vars.model_properties_type
+    alert_condition    = var.metrics_vars.finops_tag_audit_lambda_errors.alert_condition
+    alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
+    dealerting_samples = var.metrics_vars.finops_tag_audit_lambda_errors.dealerting_samples
+    samples            = var.lambda_error_values.samples
+    threshold          = var.metrics_vars.finops_tag_audit_lambda_errors.warning.threshold
+    violating_samples  = var.lambda_error_values.violating_samples
+  }
+
+  query_definition {
+    type            = var.metrics_vars.finops_tag_audit_lambda_errors.query_definition_type
+    metric_selector = var.metrics_vars.finops_tag_audit_lambda_errors.metric_key
+   #  aggregation     = var.metrics_vars.finops_tag_audit_lambda_errors.aggregation
   }
 }
