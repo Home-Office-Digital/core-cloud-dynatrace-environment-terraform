@@ -466,9 +466,9 @@ resource "dynatrace_metric_events" "finops_tag_audit_lambda_errors_warning_alert
     alert_condition    = var.metrics_vars.finops_tag_audit_lambda_errors.alert_condition
     alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.finops_tag_audit_lambda_errors.dealerting_samples
-    samples            = var.lambda_error_values.samples
+    samples            = var.lambda_error_vars.samples
     threshold          = var.metrics_vars.finops_tag_audit_lambda_errors.warning.threshold
-    violating_samples  = var.lambda_error_values.violating_samples
+    violating_samples  = var.lambda_error_vars.violating_samples
   }
 
   query_definition {
