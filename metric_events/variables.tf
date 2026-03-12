@@ -45,13 +45,6 @@ variable "s3_error_vars" {
     metric_selector                   = string
   })
 }
-variable "lambda_error_vars" {
-  description = "Lambda-specific config vars"
-  type = object({
-  samples           = string
-  violating_samples = string
-  })
-}
 # config related to metrics
 variable "metrics_vars" {
   type = object({
@@ -172,25 +165,6 @@ variable "metrics_vars" {
      #  aggregation           = string
       metric_key            = string
       critical = object({
-        enabled   = bool
-        title     = string
-        threshold = string
-        tags = list(object({
-          key   = string
-          value = string
-        }))
-      })
-    })
-    finops_tag_audit_lambda_errors = object({
-      summary               = string
-      description           = string
-      query_definition_type = string
-      metric_selector       = string
-      metric_key            = string
-      alert_condition       = string
-      dealerting_samples    = string
-     #  aggregation           = string
-      warning = object({
         enabled   = bool
         title     = string
         threshold = string
