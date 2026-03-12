@@ -181,25 +181,6 @@ variable "metrics_vars" {
         }))
       })
     })
-    finops_tag_audit_lambda_errors = object({
-      summary               = string
-      description           = string
-      query_definition_type = string
-      metric_selector       = string
-      metric_key            = string
-      alert_condition       = string
-      dealerting_samples    = string
-     #  aggregation           = string
-      warning = object({
-        enabled   = bool
-        title     = string
-        threshold = string
-        tags = list(object({
-          key   = string
-          value = string
-        }))
-      })
-    })
     disk_usage = object({
       summary               = string
       description           = string
