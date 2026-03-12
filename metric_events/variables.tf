@@ -45,6 +45,13 @@ variable "s3_error_vars" {
     metric_selector                   = string
   })
 }
+variable "lambda_error_vars" {
+  description = "Lambda-specific config vars"
+  type = object({
+  samples           = string
+  violating_samples = string
+  })
+}
 # config related to metrics
 variable "metrics_vars" {
   type = object({
