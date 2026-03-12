@@ -106,8 +106,8 @@ module "dynatrace_servicenow_integration" {
   SERVICENOW_CLIENT_ID     = var.SERVICENOW_CLIENT_ID
   SERVICENOW_CLIENT_SECRET = var.SERVICENOW_CLIENT_SECRET
 
-  management_zone = var.tenant_vars.servicenow_integration.management_zone
-  
+  management_zone = var.tenant_vars.servicenow_integration.management_zone ? var.tenant_vars.servicenow_integration.management_zone : null
+
   servicenow_payload = contains(
     keys(var.tenant_vars.servicenow_integration),
     "servicenow_payload"
