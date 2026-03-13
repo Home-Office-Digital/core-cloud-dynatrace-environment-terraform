@@ -5,6 +5,11 @@ variable "servicenow_payload" {
   type = map(string)
 }
 
+variable "management_zone"{
+  type = string
+  default = null
+  description = "alerting_profile management zone"
+}
 variable "servicenow_alerting_rules" {
   type = map(object({
     include_mode = optional(string, "NONE") # According to https://registry.terraform.io/providers/dynatrace-oss/dynatrace/latest/docs/resources/alerting#nested-schema-for-rulesrule, 'NONE' applies to all monitored entities

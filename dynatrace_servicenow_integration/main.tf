@@ -7,8 +7,10 @@ terraform {
   }
 }
 
+
 resource "dynatrace_alerting" "servicenow_alert" {
   name = "servicenow_alert"
+  management_zone = var.management_zone
   rules {
     dynamic "rule" {
       for_each = var.servicenow_alerting_rules
