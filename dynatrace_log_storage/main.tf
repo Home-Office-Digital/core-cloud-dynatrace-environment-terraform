@@ -1,16 +1,19 @@
 
 resource "dynatrace_log_storage" "dynatrace_log_storage_rule" {
-  for_each = { for rule in var.rules : rule.name => rule }
+  count = length(var.rules)
 
-  name              = each.value.name
-  enabled           = each.value.enabled
-  send_to_storage   = each.value.send_to_storage
+  name              = var.rules[count.index].name
+  enabled           = var.rules[count.index].enabled
+  send_to_storage   = var.rules[count.index].send_to_storage
 
-  matchers {
-    matcher {
-      attribute = each.value.matcher_attribute
-      operator  = "MATCHES" # According to https://registry.terraform.io/providers/dynatrace-oss/dynatrace/latest/docs/resources/log_storage this is the only possible value for this block and better be hardcoded here.
-      values    = each.value.matcher_values
+  dynamic "matchers" {
+    for_each = var.rules[count.index].matchers
+    content {
+      matcher {
+        attribute = matchers.value.attribute
+        operator  = "MATCHES" # According to https://registry.terraform.io/providers/dynatrace-oss/dynatrace/latest/docs/resources/log_storage this is the only possible value for this block and better be hardcoded here.
+        values    = matchers.value.values
+      }
     }
   }
 }

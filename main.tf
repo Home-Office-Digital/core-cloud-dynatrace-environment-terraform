@@ -165,18 +165,24 @@ module "dynatrace_log_storage_rules" {
 
   rules = [
     {
-      name              = "include-dynatrace-pods"
-      enabled           = true
-      send_to_storage   = true
-      matcher_attribute = "k8s.namespace.name"
-      matcher_values    = ["kube-system"]
+      # ordering is important here, as rules are processed in order and the first matching rule is applied, so this rule must be before the include-all rule in the list.
+      name            = "exclude-pods-dynatrace-logs-false"
+      enabled         = true
+      send_to_storage = false
+      matchers = [
+        {
+          attribute = "k8s.pod.label"
+          values    = ["dynatrace-logs=false"]
+        }
+      ]
     },
     {
-      name              = "include-dt-containers"
-      enabled           = true
-      send_to_storage   = true
-      matcher_attribute = "k8s.pod.label"
-      matcher_values    = ["dynatrace-logs=true"]
+      # catch-all rule to include logs for pods that do have the dynatrace-logs label set to true, or where the label is not set at all.
+      # this rule must be last in the list.
+      name            = "include-all"
+      enabled         = true
+      send_to_storage = true
+      matchers        = [] # catch-all rule
     }
   ]
 }
