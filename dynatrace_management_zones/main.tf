@@ -13,7 +13,7 @@ resource "dynatrace_management_zone_v2" "management_zone" {
   legacy_id   = try(var.zone_vars.legacy_id, null)
 
   dynamic "rules" {
-    for_each = local.zone_rules_processed != null ? local.zone_rules_processed[*] : []
+    for_each = local.zone_rules_processed != null ? local.zone_rules_processed : {}
     # Create a 'rules' block if defined in the config.yaml, else skips all following dynamic blocks
     content {
       dynamic "rule" {
