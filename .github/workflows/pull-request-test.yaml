@@ -1,0 +1,48 @@
+name: Run Terraform Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  RunTerraformValidation:
+    name: Run Terraform Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module:
+          - aws_cwl_cwm
+    steps:
+      - name: Clone the Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd #v3
+        with:
+          terraform_version: ~1.7.0
+
+      - name: Terraform Init
+        working-directory: ${{ matrix.module }}
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        working-directory: ${{ matrix.module }}
+        run: terraform validate
+
+      - name: Ensure tests exist
+        working-directory: ${{ matrix.module }}
+        run: |
+          if ! ls tests/*.tftest.hcl >/dev/null 2>&1; then
+            echo "No Terraform tests found in module: ${{ matrix.module }}"
+            exit 1
+          fi
+
+      - name: Terraform Test
+        working-directory: ${{ matrix.module }}
+        run: terraform test
