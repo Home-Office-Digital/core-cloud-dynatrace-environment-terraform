@@ -29,11 +29,19 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ matrix.module }}
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Validate
         working-directory: ${{ matrix.module }}
         run: terraform validate
+
+      - name: Ensure tests exist
+        working-directory: ${{ matrix.module }}
+        run: |
+          if ! ls tests/*.tftest.hcl >/dev/null 2>&1; then
+            echo "No Terraform tests found in module: ${{ matrix.module }}"
+            exit 1
+          fi
 
       - name: Terraform Test
         working-directory: ${{ matrix.module }}
