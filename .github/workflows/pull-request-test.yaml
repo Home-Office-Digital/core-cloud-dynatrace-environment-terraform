@@ -1,0 +1,40 @@
+name: Run Terraform Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  RunTerraformValidation:
+    name: Run Terraform Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module:
+          - aws_cwl_cwm
+    steps:
+      - name: Clone the Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.7.0
+
+      - name: Terraform Init
+        working-directory: ${{ matrix.module }}
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ${{ matrix.module }}
+        run: terraform validate
+
+      - name: Terraform Test
+        working-directory: ${{ matrix.module }}
+        run: terraform test
