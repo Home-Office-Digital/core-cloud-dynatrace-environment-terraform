@@ -31,9 +31,9 @@ resource "dynatrace_metric_events" "freeable_memory_warning_alerts" {
     alert_condition    = var.metrics_vars.memory_usage.alert_condition
     alert_on_no_data   = var.common_metrics_vars.alert_on_no_data
     dealerting_samples = var.metrics_vars.memory_usage.dealerting_samples
-    samples            = var.common_metrics_vars.samples
+    samples            = var.metrics_vars.memory_usage.warning.samples != null ? var.metrics_vars.memory_usage.warning.samples : var.common_metrics_vars.samples
     threshold          = var.metrics_vars.memory_usage.warning.threshold
-    violating_samples  = var.common_metrics_vars.violating_samples
+    violating_samples  = var.metrics_vars.memory_usage.warning.violating_samples != null ? var.metrics_vars.memory_usage.warning.violating_samples : var.common_metrics_vars.violating_samples
   }
   query_definition {
     type        = var.metrics_vars.memory_usage.query_definition_type

@@ -57,9 +57,11 @@ variable "metrics_vars" {
       aggregation           = string
       metric_key            = string
       warning = object({
-        enabled   = bool
-        title     = string
-        threshold = string
+        enabled           = bool
+        title             = string
+        threshold         = string
+        samples           = optional(string, null)
+        violating_samples = optional(string, null)
         tags = list(object({
           key   = string
           value = string
