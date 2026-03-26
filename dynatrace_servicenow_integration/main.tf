@@ -8,7 +8,7 @@ terraform {
 }
 
 data "dynatrace_management_zone_v2" "this"{
-  count = var.management_zone ? 1 : 0
+  count = var.management_zone != null  ? 1 : 0
   name = var.management_zone 
 }
 resource "dynatrace_alerting" "servicenow_alert" {
