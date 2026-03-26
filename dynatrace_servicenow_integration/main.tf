@@ -7,10 +7,13 @@ terraform {
   }
 }
 
-
+data "dynatrace_management_zone_v2" "this"{
+  count = var.management_zone ? 1 : 0
+  name = var.management_zone 
+}
 resource "dynatrace_alerting" "servicenow_alert" {
   name = "servicenow_alert"
-  management_zone = var.management_zone
+  management_zone = data.dynatrace_management_zone_v2.this.id
   rules {
     dynamic "rule" {
       for_each = var.servicenow_alerting_rules
