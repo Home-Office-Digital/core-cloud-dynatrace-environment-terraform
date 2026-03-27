@@ -62,10 +62,11 @@ module "metric_events" {
     ) && contains(keys(var.tenant_vars.metric_events), "common_metric_values"
     ) && contains(keys(var.tenant_vars.metric_events), "metrics"
   ) && var.tenant_vars.metric_events.common_metric_values != null && var.tenant_vars.metric_events.metrics != null) ? 1 : 0
-  common_metrics_vars = var.tenant_vars.metric_events.common_metric_values
-  metrics_vars        = var.tenant_vars.metric_events.metrics
-  metric_stream_vars  = var.tenant_vars.metric_events.metric_stream_values
-  s3_error_vars       = var.tenant_vars.metric_events.s3_error_values
+  common_metrics_vars        = var.tenant_vars.metric_events.common_metric_values
+  metrics_vars               = var.tenant_vars.metric_events.metrics
+  metric_stream_vars         = var.tenant_vars.metric_events.metric_stream_values
+  s3_error_vars              = var.tenant_vars.metric_events.s3_error_values
+  synthetic_location_ag_vars = try(var.tenant_vars.metric_events.synthetic_location_ag_values, {})
 }
 
 module "ghes_dashboards" {
@@ -207,6 +208,7 @@ module "dynatrace_corecloud_alerts" {
   count                            = local.corecloud_alerts_enabled ? 1 : 0
   corecloud_alert_configs          = try(var.tenant_vars.corecloud_alerts.corecloud_alert_configs, null)
   corecloud_profile_alerting_rules = try(var.tenant_vars.corecloud_alerts.corecloud_profile_alerting_rules, null)
+  synthetic_alert_profile_configs  = try(var.tenant_vars.corecloud_alerts.synthetic_alert_profile_configs, {})
   slack_webhook_urls               = var.slack_webhook_urls
 }
 

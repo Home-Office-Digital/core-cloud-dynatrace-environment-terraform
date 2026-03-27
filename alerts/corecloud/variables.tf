@@ -16,12 +16,27 @@ variable "corecloud_profile_alerting_rules" {
     alerting_profile_name = string 
     management_zone       = string
     rules = map(object({
-      include_mode          = optional(string, "NONE") 
-      tags                  = optional(list(string), []) 
+      include_mode          = optional(string, "NONE")
+      tags                  = optional(list(string), [])
       delay_in_minutes      = optional(number, 0)
       severity_level        = optional(string)
+      predefined_events     = optional(object({
+        negate = optional(bool, false)
+        values = list(string)
+      }))
     }))
   }))
+}
+
+variable "synthetic_alert_profile_configs" {
+  description = "Alerting profiles for synthetic monitoring with predefined event type filters."
+  type = map(object({
+    alerting_profile_name   = string
+    management_zone         = string
+    delay_in_minutes        = optional(number, 0)
+    predefined_event_values = list(string)
+  }))
+  default = {}
 }
 
 variable "slack_webhook_urls" {
