@@ -53,15 +53,10 @@ resource "dynatrace_alerting" "corecloud_profile" {
   }
 }
 
-data "dynatrace_management_zone_v2" "synthetic_mz" {
-  for_each = { for k, v in var.corecloud_alert_configs : k => v if v.management_zone != "" && length(v.predefined_event_values) > 0 }
-  name     = each.value.management_zone
-}
-
 resource "dynatrace_alerting" "synthetic_profile" {
   for_each        = { for k, v in var.corecloud_alert_configs : k => v if length(v.predefined_event_values) > 0 }
   name            = each.value.alerting_profile_name
-  management_zone = each.value.management_zone != "" ? data.dynatrace_management_zone_v2.synthetic_mz[each.key].id : null
+  management_zone = each.value.management_zone != "" ? local.zone_ids_by_name[each.value.management_zone][0] : null
   rules {
     rule {
       severity_level   = "AVAILABILITY"
