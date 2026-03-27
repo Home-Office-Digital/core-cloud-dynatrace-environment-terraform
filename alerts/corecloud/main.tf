@@ -12,6 +12,10 @@ locals {
     { for key, profile in dynatrace_alerting.corecloud_profile : profile.name => profile.id },
     { for key, profile in dynatrace_alerting.synthetic_profile : profile.name => profile.id }
   )
+  zone_ids_by_name = {
+    for key, val in var.corecloud_profile_alerting_rules :
+    val.management_zone => data.dynatrace_management_zone_v2.zones[key].id...
+  }
 }
 
 data "dynatrace_management_zone_v2" "zones" {
@@ -49,23 +53,38 @@ resource "dynatrace_alerting" "corecloud_profile" {
   }
 }
 
-data "dynatrace_management_zone_v2" "synthetic_zones" {
-  for_each = var.synthetic_alert_profile_configs
-  name     = each.value.management_zone
+resource "dynatrace_webhook_notification" "synthetic_slack_alert" {
+  for_each               = var.synthetic_alert_profile_configs
+  active                 = each.value.slack_notification_enabled
+  name                   = each.value.slack_notification_name
+  profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
+  secret_url             = var.slack_webhook_urls[each.value.slack_webhook_url_key]
+  url_contains_secret    = true
+  insecure               = false
+  notify_event_merges    = false
+  notify_closed_problems = each.value.notify_closed_problem
+  payload                = each.value.slack_message
 }
 
 resource "dynatrace_alerting" "synthetic_profile" {
   for_each        = var.synthetic_alert_profile_configs
   name            = each.value.alerting_profile_name
-  management_zone = data.dynatrace_management_zone_v2.synthetic_zones[each.key].id
+  management_zone = each.value.management_zone != "" ? local.zone_ids_by_name[each.value.management_zone][0] : null
   rules {
     rule {
       severity_level   = "AVAILABILITY"
       delay_in_minutes = each.value.delay_in_minutes
       include_mode     = "NONE"
-      predefined_events {
-        negate = false
-        values = each.value.predefined_event_values
+    }
+  }
+  filters {
+    dynamic "filter" {
+      for_each = each.value.predefined_event_values
+      content {
+        predefined {
+          negate = false
+          type   = filter.value
+        }
       }
     }
   }
