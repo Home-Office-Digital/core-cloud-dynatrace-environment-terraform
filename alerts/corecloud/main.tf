@@ -28,7 +28,7 @@ resource "dynatrace_webhook_notification" "custom_slack_alerts" {
   active                 = each.value.slack_notification_enabled
   name                   = each.value.slack_notification_name 
   profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
-  secret_url             = var.slack_webhook_urls[each.key]
+  secret_url             = var.slack_webhook_urls[coalesce(each.value.slack_webhook_url_key, each.key)]
   url_contains_secret    = true
   insecure               = false
   notify_event_merges    = false
@@ -53,23 +53,15 @@ resource "dynatrace_alerting" "corecloud_profile" {
   }
 }
 
-resource "dynatrace_webhook_notification" "synthetic_slack_alert" {
-  for_each               = var.synthetic_alert_profile_configs
-  active                 = each.value.slack_notification_enabled
-  name                   = each.value.slack_notification_name
-  profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
-  secret_url             = var.slack_webhook_urls[each.value.slack_webhook_url_key]
-  url_contains_secret    = true
-  insecure               = false
-  notify_event_merges    = false
-  notify_closed_problems = each.value.notify_closed_problem
-  payload                = each.value.slack_message
+data "dynatrace_management_zone_v2" "synthetic_mz" {
+  for_each = { for k, v in var.corecloud_alert_configs : k => v if v.management_zone != "" && length(v.predefined_event_values) > 0 }
+  name     = each.value.management_zone
 }
 
 resource "dynatrace_alerting" "synthetic_profile" {
-  for_each        = var.synthetic_alert_profile_configs
+  for_each        = { for k, v in var.corecloud_alert_configs : k => v if length(v.predefined_event_values) > 0 }
   name            = each.value.alerting_profile_name
-  management_zone = each.value.management_zone != "" ? local.zone_ids_by_name[each.value.management_zone][0] : null
+  management_zone = each.value.management_zone != "" ? data.dynatrace_management_zone_v2.synthetic_mz[each.key].id : null
   rules {
     rule {
       severity_level   = "AVAILABILITY"
