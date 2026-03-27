@@ -8,9 +8,13 @@ terraform {
 }
 
 locals {
-  alerting_profile_ids_by_name = {
-    for key, profile in dynatrace_alerting.corecloud_profile :
-    profile.name => profile.id
+  alerting_profile_ids_by_name = merge(
+    { for key, profile in dynatrace_alerting.corecloud_profile : profile.name => profile.id },
+    { for key, profile in dynatrace_alerting.synthetic_profile : profile.name => profile.id }
+  )
+  zone_ids_by_name = {
+    for key, val in var.corecloud_profile_alerting_rules :
+    val.management_zone => data.dynatrace_management_zone_v2.zones[key].id...
   }
 }
 
@@ -24,7 +28,7 @@ resource "dynatrace_webhook_notification" "custom_slack_alerts" {
   active                 = each.value.slack_notification_enabled
   name                   = each.value.slack_notification_name 
   profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
-  secret_url             = var.slack_webhook_urls[each.key]
+  secret_url             = var.slack_webhook_urls[coalesce(each.value.slack_webhook_url_key, each.key)]
   url_contains_secret    = true
   insecure               = false
   notify_event_merges    = false
@@ -40,10 +44,34 @@ resource "dynatrace_alerting" "corecloud_profile" {
         dynamic "rule" {
             for_each = each.value.rules
             content {
-                include_mode = rule.value.include_mode
-                tags = rule.value.tags
+                include_mode     = rule.value.include_mode
+                tags             = rule.value.tags
                 delay_in_minutes = rule.value.delay_in_minutes
-                severity_level = rule.key
+                severity_level   = rule.key
+      }
+    }
+  }
+}
+
+resource "dynatrace_alerting" "synthetic_profile" {
+  for_each        = { for k, v in var.corecloud_alert_configs : k => v if length(v.predefined_event_values) > 0 }
+  name            = each.value.alerting_profile_name
+  management_zone = each.value.management_zone != "" ? local.zone_ids_by_name[each.value.management_zone][0] : null
+  rules {
+    rule {
+      severity_level   = "AVAILABILITY"
+      delay_in_minutes = each.value.delay_in_minutes
+      include_mode     = "NONE"
+    }
+  }
+  filters {
+    dynamic "filter" {
+      for_each = each.value.predefined_event_values
+      content {
+        predefined {
+          negate = false
+          type   = filter.value
+        }
       }
     }
   }
