@@ -13,7 +13,7 @@ data "dynatrace_management_zone_v2" "this"{
 }
 resource "dynatrace_alerting" "servicenow_alert" {
   name = "servicenow_alert"
-  management_zone = data.dynatrace_management_zone_v2.this[0].id
+  management_zone = var.management_zone != null ? data.dynatrace_management_zone_v2.this[0].id : null
   rules {
     dynamic "rule" {
       for_each = var.servicenow_alerting_rules
