@@ -34,7 +34,8 @@ variable "default_rules"{
     "queue",
     "indirect_queue",
     "ssl_cert_monitor",
-    "ssl_cert_monitor_cert"
+    "ssl_cert_monitor_cert",
+    "rds_service_tagging"
   ]
 }
 variable "zone_vars" {

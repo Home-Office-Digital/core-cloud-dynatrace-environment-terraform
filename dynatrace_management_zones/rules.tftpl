@@ -139,6 +139,10 @@ default_rules:
     type: "SELECTOR"
     enabled: true
     entity_selector: type(RELATIONAL_DATABASE_SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+  rds_service_tagging:
+    type: "SELECTOR"
+    enabled: true
+    entity_selector: type(SERVICE),databaseName.exists(),toRelationships.calls(type(SERVICE)%{ if project_id != "" },tag([KUBERNETES]project-id:${project_id},[Environment]project-id:${project_id},project-id-${project_id})%{ endif })
   custom_with_envtags:
     type: "SELECTOR"
     enabled: true
