@@ -34,7 +34,10 @@ variable "default_rules"{
     "queue",
     "indirect_queue",
     "ssl_cert_monitor",
-    "ssl_cert_monitor_cert"
+    "ssl_cert_monitor_cert",
+    "zookeeper"
+    # ,"zookeeper_replica"
+    # ,"zookeeper_client"
   ]
 }
 variable "zone_vars" {

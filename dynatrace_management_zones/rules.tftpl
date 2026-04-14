@@ -87,6 +87,10 @@ default_rules:
     type: "SELECTOR"
     enabled: true
     entity_selector: %{ if project_id != "" && activegate_id_pattern != ""}type(python:certificate_monitor_certificate),entityName.contains("${activegate_id_pattern}")%{ endif }
+  zookeeper:
+    type: "SELECTOR"
+    enabled: true
+    entity_selector: type(jmx:zookeeper),fromRelationships.runsOn(type(HOST),tag([AWS]dynatrace:true)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{endif}%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }))
   exclude_asg:
     type: "SELECTOR"
     enabled: true
