@@ -23,56 +23,56 @@ data "dynatrace_management_zone_v2" "zones" {
   name     = each.value.management_zone
 }
 
-# resource "dynatrace_webhook_notification" "custom_slack_alerts" { 
-#   for_each               = var.corecloud_alert_configs
-#   active                 = each.value.slack_notification_enabled
-#   name                   = each.value.slack_notification_name 
-#   profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
-#   secret_url             = var.slack_webhook_urls[coalesce(each.value.slack_webhook_url_key, each.key)]
-#   url_contains_secret    = true
-#   insecure               = false
-#   notify_event_merges    = false
-#   notify_closed_problems = true
-#   payload                = each.value.slack_message
-# }
+resource "dynatrace_webhook_notification" "custom_slack_alerts" { 
+  for_each               = var.corecloud_alert_configs
+  active                 = each.value.slack_notification_enabled
+  name                   = each.value.slack_notification_name 
+  profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
+  secret_url             = var.slack_webhook_urls[coalesce(each.value.slack_webhook_url_key, each.key)]
+  url_contains_secret    = true
+  insecure               = false
+  notify_event_merges    = false
+  notify_closed_problems = true
+  payload                = each.value.slack_message
+}
 
-# resource "dynatrace_alerting" "corecloud_profile" {
-#     for_each        = var.corecloud_profile_alerting_rules
-#     name            = each.value.alerting_profile_name
-#     management_zone = data.dynatrace_management_zone_v2.zones[each.key].id
-#     rules {
-#         dynamic "rule" {
-#             for_each = each.value.rules
-#             content {
-#                 include_mode     = rule.value.include_mode
-#                 tags             = rule.value.tags
-#                 delay_in_minutes = rule.value.delay_in_minutes
-#                 severity_level   = rule.key
-#       }
-#     }
-#   }
-# }
+resource "dynatrace_alerting" "corecloud_profile" {
+    for_each        = var.corecloud_profile_alerting_rules
+    name            = each.value.alerting_profile_name
+    management_zone = data.dynatrace_management_zone_v2.zones[each.key].id
+    rules {
+        dynamic "rule" {
+            for_each = each.value.rules
+            content {
+                include_mode     = rule.value.include_mode
+                tags             = rule.value.tags
+                delay_in_minutes = rule.value.delay_in_minutes
+                severity_level   = rule.key
+      }
+    }
+  }
+}
 
-# resource "dynatrace_alerting" "synthetic_profile" {
-#   for_each        = { for k, v in var.corecloud_alert_configs : k => v if length(v.predefined_event_values) > 0 }
-#   name            = each.value.alerting_profile_name
-#   management_zone = each.value.management_zone != "" ? local.zone_ids_by_name[each.value.management_zone][0] : null
-#   rules {
-#     rule {
-#       severity_level   = "AVAILABILITY"
-#       delay_in_minutes = each.value.delay_in_minutes
-#       include_mode     = "NONE"
-#     }
-#   }
-#   filters {
-#     dynamic "filter" {
-#       for_each = each.value.predefined_event_values
-#       content {
-#         predefined {
-#           negate = false
-#           type   = filter.value
-#         }
-#       }
-#     }
-#   }
-# }
+resource "dynatrace_alerting" "synthetic_profile" {
+  for_each        = { for k, v in var.corecloud_alert_configs : k => v if length(v.predefined_event_values) > 0 }
+  name            = each.value.alerting_profile_name
+  management_zone = each.value.management_zone != "" ? local.zone_ids_by_name[each.value.management_zone][0] : null
+  rules {
+    rule {
+      severity_level   = "AVAILABILITY"
+      delay_in_minutes = each.value.delay_in_minutes
+      include_mode     = "NONE"
+    }
+  }
+  filters {
+    dynamic "filter" {
+      for_each = each.value.predefined_event_values
+      content {
+        predefined {
+          negate = false
+          type   = filter.value
+        }
+      }
+    }
+  }
+}
