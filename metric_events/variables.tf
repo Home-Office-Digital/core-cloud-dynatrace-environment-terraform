@@ -25,9 +25,9 @@ variable "metric_stream_vars" {
     davis_merge           = bool
     event_type            = string
 
-    event_entity_dimension_key        = string
-    dimension_key                     = string
-    metric_selector                   = string
+    event_entity_dimension_key = string
+    dimension_key              = string
+    metric_selector            = string
   })
 }
 variable "s3_error_vars" {
@@ -40,9 +40,9 @@ variable "s3_error_vars" {
     davis_merge           = bool
     event_type            = string
 
-    event_entity_dimension_key        = string
-    dimension_key                     = string
-    metric_selector                   = string
+    event_entity_dimension_key = string
+    dimension_key              = string
+    metric_selector            = string
   })
 }
 # config related to metrics
@@ -110,8 +110,8 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-     #  aggregation           = string
-      metric_key            = string
+      #  aggregation           = string
+      metric_key = string
       critical = object({
         enabled   = bool
         title     = string
@@ -128,8 +128,8 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-     #  aggregation           = string
-      metric_key            = string
+      #  aggregation           = string
+      metric_key = string
       critical = object({
         enabled   = bool
         title     = string
@@ -146,8 +146,8 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-     #  aggregation           = string
-      metric_key            = string
+      #  aggregation           = string
+      metric_key = string
       critical = object({
         enabled   = bool
         title     = string
@@ -164,8 +164,8 @@ variable "metrics_vars" {
       alert_condition       = string
       dealerting_samples    = string
       query_definition_type = string
-     #  aggregation           = string
-      metric_key            = string
+      #  aggregation           = string
+      metric_key = string
       critical = object({
         enabled   = bool
         title     = string
@@ -204,4 +204,47 @@ variable "metrics_vars" {
       })
     })
   })
+}
+
+variable "tag_audit_lambda" {
+  type = object({
+    enabled                    = bool
+    event_entity_dimension_key = string
+    legacy_id                  = string
+    summary                    = string
+    event_template = object({
+      davis_merge = bool
+      description = string
+      event_type  = string
+      title       = string
+    })
+    model_properties = object({
+      alert_condition    = string
+      alert_on_no_data   = bool
+      dealerting_samples = number
+      samples            = number
+      signal_fluctuation = number
+      threshold          = number
+      tolerance          = number
+      type               = string
+      violating_samples  = number
+    })
+    query_definition = object({
+      aggregation     = string
+      management_zone = string
+      metric_key      = string
+      metric_selector = string
+      query_offset    = number
+      type            = string
+      entity_filter = object({
+        dimension_key = string
+        conditions = list(object({
+          operator = string
+          type     = string
+          value    = string
+        }))
+      })
+    })
+  })
+  default = null
 }
