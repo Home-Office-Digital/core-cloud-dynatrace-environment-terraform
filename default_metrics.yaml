@@ -1208,3 +1208,33 @@ Glue:
     - JobName
     - JobRunId
     - Type
+  - name: glue.driver.aggregate.numCompletedStages
+    statistic: SUM
+    dimensions:
+    - JobName
+    - JobRunId
+    - Type
+  - name: glue.driver.aggregate.numCompletedTasks
+    statistic: SUM
+    dimensions:
+    - JobName
+    - JobRunId
+    - Type
+  - name: glue.driver.aggregate.numFailedTasks
+    statistic: SUM
+    dimensions:
+    - JobName
+    - JobRunId
+    - Type
+  - name: glue.driver.aggregate.numKilledTasks
+    statistic: SUM
+    dimensions:
+    - JobName
+    - JobRunId
+    - Type
+  - name: glue.driver.aggregate.recordsRead
+    statistic: SUM
+    dimensions:
+    - JobName
+    - JobRunId
+    - Type
