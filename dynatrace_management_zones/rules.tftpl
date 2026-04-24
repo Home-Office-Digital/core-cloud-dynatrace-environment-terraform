@@ -395,3 +395,29 @@ default_rules:
           string_value: "${aws_account_id}"
           case_sensitive: true
 %{ endif ~}
+%{ if metric_key != "" ~}
+  ${metric_key}:
+    type: "DIMENSION"
+    enabled: true
+    dimension_rule:
+      applies_to: "METRIC"
+      dimension_conditions:
+        condition:
+          condition_type: "METRIC_KEY"
+          rule_matcher: "BEGINS_WITH"
+          value: "${metric_key}"
+          case_sensitive: true
+%{ endif ~}
+%{ if process_group_predefined_metadata_regex != "" ~}
+  k8s_pg_predefined_metadata_beginswith:
+      type: "ME"
+      enabled: true
+      attribute_rule:
+        entity_type: "PROCESS_GROUP"
+        attribute_conditions:
+          - key: "PROCESS_GROUP_PREDEFINED_METADATA"
+            dynamic_key: "KUBERNETES_NAMESPACE"
+            operator: "REGEX_MATCHES"
+            string_value: "${process_group_predefined_metadata_regex}"
+            case_sensitive: true
+%{ endif ~}
