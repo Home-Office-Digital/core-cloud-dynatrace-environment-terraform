@@ -4,7 +4,7 @@ metadata:
   name: core-cloud-dynatrace-environment-terraform
   description: A repo used to create Dynatrace environment specific resources.
   annotations:
-    github.com/project-slug: UKHomeOffice/core-cloud-dynatrace-environment-terraform
+    github.com/project-slug: Home-Office-Digital/core-cloud-dynatrace-environment-terraform
 spec:
   type: service
   owner: core-cloud-devops

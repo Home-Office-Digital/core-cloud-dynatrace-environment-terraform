@@ -12,11 +12,11 @@ This repository is designed to use pre commit hooks as part of the [pre-commit f
 
 By default, services defined in the [default\_metrics.yaml](default_metrics.yaml) will be monitored on all the aws connections specified in the input (from the terragrunt repo).
 
-This set of services can be _topped up_ or _completely replaced_ by including/altering relavant sections as specified in the https://github.com/UKHomeOffice/core-cloud-dynatrace-terragrunt documentation.
+This set of services can be _topped up_ or _completely replaced_ by including/altering relavant sections as specified in the https://github.com/Home-Office-Digital/core-cloud-dynatrace-terragrunt documentation.
 
 ## Management Zones
 
-Management Zones are maintained by the [dynatrace_management_zones module](https://github.com/UKHomeOffice/core-cloud-dynatrace-environment-terraform/blob/main/dynatrace_management_zones) in the core-cloud-dynatrace-environment-terraform repo.
+Management Zones are maintained by the [dynatrace_management_zones module](https://github.com/Home-Office-Digital/core-cloud-dynatrace-environment-terraform/blob/main/dynatrace_management_zones) in the core-cloud-dynatrace-environment-terraform repo.
 Zones can be created per-Dynatrace instance by adding a block to the corresponding environment section of the [config.yaml](config.yaml) file.
 For example, in order to configure a Management Zone for the "Core Cloud Test" Dynatrace:
 
