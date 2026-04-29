@@ -59,6 +59,7 @@ variable "zone_vars" {
     activegate_id_pattern        = optional(string, "")
     pg_to_host_propagation       = optional(bool, false)
     pg_to_service_propagation    = optional(bool, false)
+    activegate_metrics           = optional(bool, false)
     rules_templates              = optional(list(string))
     tenant_exclusive_rules = optional(map(object({
       enabled         = bool
