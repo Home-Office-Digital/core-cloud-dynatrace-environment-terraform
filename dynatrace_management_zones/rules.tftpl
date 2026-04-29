@@ -395,7 +395,7 @@ default_rules:
           string_value: "${aws_account_id}"
           case_sensitive: true
 %{ endif ~}
-%{ if activegate_metrics = "true" ~}
+%{ if activegate_metrics != "false" ~}
   dfsm:
     type: "DIMENSION"
     enabled: true
