@@ -89,7 +89,7 @@ module "golden_dashboards" {
 }
 
 module "aws_secrets" {
-  source      = "git::https://github.com/Home-Office-Digital/core-cloud-aws-secrets-terraform.git?ref=0.2.3"
+  source      = "git::https://github.com/Home-Office-Digital/core-cloud-aws-secrets-terraform.git?ref=1.0.0"
   count       = contains(keys(var.tenant_vars), "aws_secrets") ? 1 : 0
   aws_secrets = var.tenant_vars.aws_secrets
 }
