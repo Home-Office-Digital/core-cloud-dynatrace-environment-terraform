@@ -395,8 +395,8 @@ default_rules:
           string_value: "${aws_account_id}"
           case_sensitive: true
 %{ endif ~}
-%{ if metric_key != "" ~}
-  ${metric_key}:
+%{ if activegate_metrics != "false" ~}
+  dfsm:
     type: "DIMENSION"
     enabled: true
     dimension_rule:
@@ -405,7 +405,7 @@ default_rules:
         condition:
           condition_type: "METRIC_KEY"
           rule_matcher: "BEGINS_WITH"
-          value: "${metric_key}"
+          value: "dfsm"
           case_sensitive: true
 %{ endif ~}
 %{ if process_group_predefined_metadata_regex != "" ~}
