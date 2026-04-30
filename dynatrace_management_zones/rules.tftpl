@@ -90,15 +90,15 @@ default_rules:
   zookeeper:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(jmx:zookeeper),fromRelationships.runsOn(type(HOST))%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif }
+    entity_selector: type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })
   zookeeper_replica:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST))%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })
+    entity_selector: type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif }))
   zookeeper_client:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(jmx:zookeeper-client),fromRelationships.calls(type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST))%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif }))
+    entity_selector: type(jmx:zookeeper-client),fromRelationships.calls(type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })))
   exclude_asg:
     type: "SELECTOR"
     enabled: true
