@@ -16,8 +16,8 @@ locals {
       pg_to_host_propagation                  = var.zone_vars.pg_to_host_propagation
       pg_to_service_propagation               = var.zone_vars.pg_to_host_propagation
       activegate_id_pattern                   = var.zone_vars.activegate_id_pattern
-      metric_key                              = var.zone_vars.metric_key
       process_group_predefined_metadata_regex = var.zone_vars.process_group_predefined_metadata_regex
+      activegate_metrics                      = var.zone_vars.activegate_metrics
     })
   ).default_rules
   rules_templates = length(coalesce(try(var.zone_vars.rules_templates, null), [])) > 0 ? var.zone_vars.rules_templates : var.default_rules
