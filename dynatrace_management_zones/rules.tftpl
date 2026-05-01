@@ -396,7 +396,7 @@ default_rules:
           case_sensitive: true
 %{ endif ~}
 %{ if activegate_metrics != "false" ~}
-  dfsm:
+  dsfm:
     type: "DIMENSION"
     enabled: true
     dimension_rule:
@@ -405,7 +405,7 @@ default_rules:
         condition:
           condition_type: "METRIC_KEY"
           rule_matcher: "BEGINS_WITH"
-          value: "dfsm"
+          value: "dsfm"
           case_sensitive: true
 %{ endif ~}
 %{ if process_group_predefined_metadata_regex != "" ~}
