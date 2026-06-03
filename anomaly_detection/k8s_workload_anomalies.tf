@@ -66,17 +66,37 @@ resource "dynatrace_k8s_workload_anomalies" "core-cloud-k8s-workload-anomalies" 
   }
   job_failure_events {
     enabled = true
+    configuration {
+      observation_period_in_minutes = 6
+      sample_period_in_minutes      = 4
+    }
   }
   oom_kills {
     enabled = true
+    configuration {
+      observation_period_in_minutes = 6
+      sample_period_in_minutes      = 4
+    }
   }
   pod_backoff_events {
     enabled = true
+    configuration {
+      observation_period_in_minutes = 6
+      sample_period_in_minutes      = 4
+    }
   }
   pod_eviction_events {
     enabled = true
+    configuration {
+      observation_period_in_minutes = 6
+      sample_period_in_minutes      = 4
+    }
   }
   pod_preemption_events {
     enabled = true
+    configuration {
+      observation_period_in_minutes = 6
+      sample_period_in_minutes      = 4
+    }
   }
 }
