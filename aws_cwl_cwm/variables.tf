@@ -94,5 +94,5 @@ variable "days_after_initiation" {
 variable "failed_delivery_sqs_message_retention_seconds" {
   description = "SQS message retention period (in seconds) for failed delivery S3 object notifications."
   type        = number
-  default     = 1209600
+  default     = 1209600 # 14 days, which is the maximum retention period for SQS messages
 }
