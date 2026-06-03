@@ -14,4 +14,9 @@ run "plan_succeeds_with_defaults" {
     condition     = output.firehose_destination == "http_endpoint"
     error_message = "Kinesis Firehose delivery stream should be created with the correct name"
   }
+
+  assert {
+    condition     = output.failed_delivery_s3_notification_prefix == "errors/http-endpoint-failed/"
+    error_message = "S3 ObjectCreated notifications must be filtered to errors/http-endpoint-failed/"
+  }
 }

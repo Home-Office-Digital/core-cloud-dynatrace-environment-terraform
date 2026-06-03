@@ -20,3 +20,13 @@ output "ingestion_type" {
   description = "The ingestion type for the Firehose delivery stream"
   value       = var.ingestion_type
 }
+
+output "failed_delivery_sqs_queue_arn" {
+  description = "ARN of the SQS queue that receives failed delivery backup object notifications."
+  value       = try(aws_sqs_queue.cwl_failed_delivery_events[0].arn, null)
+}
+
+output "failed_delivery_s3_notification_prefix" {
+  description = "S3 key prefix used to route ObjectCreated notifications for failed HTTP endpoint backups."
+  value       = var.ingestion_type == "logs" ? local.failed_delivery_error_prefix : null
+}

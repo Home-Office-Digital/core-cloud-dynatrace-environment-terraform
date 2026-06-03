@@ -147,3 +147,32 @@ resource "aws_cloudwatch_log_destination_policy" "cwl_dt_subscription_policy" {
     ]
   })
 }
+
+# Resource-based IAM policy allowing S3 bucket notifications to publish to SQS
+resource "aws_sqs_queue_policy" "cwl_failed_delivery_events" {
+  count = var.ingestion_type == "logs" ? 1 : 0
+
+  queue_url = aws_sqs_queue.cwl_failed_delivery_events[0].id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowS3BucketNotifications"
+        Effect = "Allow"
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
+        Action   = "sqs:SendMessage"
+        Resource = aws_sqs_queue.cwl_failed_delivery_events[0].arn
+        Condition = {
+          ArnLike = {
+            "aws:SourceArn" = aws_s3_bucket.cwl_backup_bucket.arn
+          }
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
+      }
+    ]
+  })
+}

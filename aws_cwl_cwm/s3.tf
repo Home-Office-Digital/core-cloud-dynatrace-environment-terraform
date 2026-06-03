@@ -47,7 +47,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
     }
   }
 
- rule {
+  rule {
     id     = "cwl-abort-incomplete-multipart-uploads"
     status = "Enabled"
 
