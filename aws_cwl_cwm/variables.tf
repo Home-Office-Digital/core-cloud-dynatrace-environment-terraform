@@ -86,7 +86,13 @@ variable "destination_name" {
 }
 
 variable "days_after_initiation" {
-description = "Specifies the number of days after initiating a multipart upload when the multipart upload must be completed."
-default = 15
-type = number
+  description = "Specifies the number of days after initiating a multipart upload when the multipart upload must be completed."
+  default     = 15
+  type        = number
+}
+
+variable "failed_delivery_sqs_message_retention_seconds" {
+  description = "SQS message retention period (in seconds) for failed delivery S3 object notifications."
+  type        = number
+  default     = 1209600
 }
