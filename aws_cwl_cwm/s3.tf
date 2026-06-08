@@ -4,9 +4,9 @@ locals {
   s3_backup_bucket_name   = "${local.firehose_name}-bucket-${data.aws_caller_identity.current.account_id}"
 }
 
-#checkov:skip=CKV_AWS_144: core cloud is not yet cross region
-#checkov:skip=CKV_AWS_21: the content of this bucket is produced only by AWS services and the source data is cloudwatch which should be treated as the master version.
-#checkov:skip=CKV_AWS_18: No user/client access so cloudtrail is sufficient
+#checkov:skip=CKV_AWS_144:core cloud is not yet cross region
+#checkov:skip=CKV_AWS_21:the content of this bucket is produced only by AWS services and the source data is cloudwatch which should be treated as the master version.
+#checkov:skip=CKV_AWS_18:No user/client access so cloudtrail is sufficient
 resource "aws_s3_bucket" "cwl_backup_bucket" {
   bucket = local.s3_backup_bucket_name
   tags   = var.tags
