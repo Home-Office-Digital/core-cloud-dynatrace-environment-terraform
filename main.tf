@@ -283,7 +283,7 @@ module "aws_cwl_s3_bucket" {
   tags                      = each.value.tags
   lifecycle_expiration_days = each.value.lifecycle_expiration_days
   days_after_initiation     = each.value.days_after_initiation
-  failed_delivery_sqs_message_retention_seconds = each.value.failed_delivery_sqs_message_retention_seconds
+  failed_delivery_sqs_message_retention_seconds = try(each.value.failed_delivery_sqs_message_retention_seconds, null)
   ingestion_type            = each.value.ingestion_type
 }
 
