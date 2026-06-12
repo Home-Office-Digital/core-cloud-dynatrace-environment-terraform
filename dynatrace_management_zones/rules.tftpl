@@ -421,3 +421,7 @@ default_rules:
             string_value: "${process_group_predefined_metadata_regex}"
             case_sensitive: true
 %{ endif ~}
+  dynamodb:
+    type: "SELECTOR"
+    enabled: true
+    entity_selector: type(cloud:aws:dynamodb)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }
