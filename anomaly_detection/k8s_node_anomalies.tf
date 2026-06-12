@@ -19,8 +19,8 @@ resource "dynatrace_k8s_node_anomalies" "core-cloud-k8s-node-anomalies" {
   node_problematic_condition {
     enabled = true
     configuration {
-      observation_period_in_minutes = 5
-      sample_period_in_minutes      = 3
+      observation_period_in_minutes = 15
+      sample_period_in_minutes      = 10
     }
   }
 }
