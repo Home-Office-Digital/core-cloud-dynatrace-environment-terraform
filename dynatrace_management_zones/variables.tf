@@ -34,10 +34,11 @@ variable "default_rules"{
     "queue",
     "indirect_queue",
     "ssl_cert_monitor",
-    "ssl_cert_monitor_cert"
-    ,"zookeeper"
-    ,"zookeeper_replica"
-    ,"zookeeper_client"
+    "ssl_cert_monitor_cert",
+    "zookeeper",
+    "zookeeper_replica",
+    "zookeeper_client",
+    "dynamodb"
   ]
 }
 variable "zone_vars" {
