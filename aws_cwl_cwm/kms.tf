@@ -41,10 +41,10 @@ resource "aws_kms_key" "cc_cosmos_s3_kms_key" {
         Sid    = "AllowFirehoseRolesToUseKey",
         Effect = "Allow",
         Principal = {
-          AWS = [
-            aws_iam_role.cc_cosmos_cwl_firehose_access_role.arn,
-            aws_iam_role.cwl_failed_delivery_replay[0].arn
-          ]
+          AWS = concat(
+            [aws_iam_role.cc_cosmos_cwl_firehose_access_role.arn],
+            local.failed_delivery_notifications_enabled ? [aws_iam_role.cwl_failed_delivery_replay[0].arn] : []
+          )
         },
         Action = [
           "kms:Encrypt",
