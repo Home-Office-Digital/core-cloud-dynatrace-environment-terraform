@@ -1,6 +1,6 @@
 data "archive_file" "cwl_failed_delivery_replay" {
   type        = "zip"
-  output_path = "${path.root}/lambda-artifacts/cwl-failed-delivery-replay.zip"
+  output_path = "${path.module}/cwl-failed-delivery-replay.zip"
   source_file = "${path.module}/src/lambda_function.py"
 }
 
