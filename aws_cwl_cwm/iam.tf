@@ -176,3 +176,71 @@ resource "aws_sqs_queue_policy" "cwl_failed_delivery_events" {
     ]
   })
 }
+
+resource "aws_iam_policy" "cwl_failed_delivery_replay" {
+  count = local.failed_delivery_notifications_enabled ? 1 : 0
+
+  name        = "${local.firehose_name}-failed-delivery-replay"
+  description = "Allow Lambda to read from S3 and replay them to Firehose delivery stream"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadBackupObjects"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = [
+          "${aws_s3_bucket.cwl_backup_bucket.arn}/*"
+        ]
+      },
+      {
+        Sid    = "ReplayToFirehose"
+        Effect = "Allow"
+        Action = [
+          "firehose:PutRecord",
+          "firehose:PutRecordBatch"
+        ]
+        Resource = [
+          aws_kinesis_firehose_delivery_stream.dynatrace_http_stream.arn
+        ]
+      }
+    ]
+  })
+  tags = var.tags
+}
+
+resource "aws_iam_role" "cwl_failed_delivery_replay" {
+  count = local.failed_delivery_notifications_enabled ? 1 : 0
+  name = "${local.firehose_name}-failed-delivery-replay"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+  tags = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "cwl_failed_delivery_replay" {
+  count = local.failed_delivery_notifications_enabled ? 1 : 0
+
+  role       = aws_iam_role.cwl_failed_delivery_replay[0].name
+  policy_arn = aws_iam_policy.cwl_failed_delivery_replay[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "cwl_failed_delivery_replay_basic" {
+  count = local.failed_delivery_notifications_enabled ? 1 : 0
+
+  role       = aws_iam_role.cwl_failed_delivery_replay[0].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
