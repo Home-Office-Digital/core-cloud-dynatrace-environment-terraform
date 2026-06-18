@@ -3,6 +3,7 @@ import boto3
 import base64
 import gzip
 import urllib.parse
+import time
 
 s3 = boto3.client("s3")
 firehose = boto3.client("firehose")
@@ -11,7 +12,7 @@ FIREHOSE_STREAM = "cc-cosmos-cwl-firehose"
 MAX_RETRIES = 3
 DLQ_PREFIX = "errors/deadletter/"
 BATCH_SIZE = 500
-
+MAX_BATCH_REPLAY_ATTEMPTS = 3
 
 # =========================
 # RAW DATA DECODER (REQUIRED)
@@ -74,18 +75,42 @@ def flush(records):
     if not records:
         return
 
-    resp = firehose.put_record_batch(
-        DeliveryStreamName=FIREHOSE_STREAM,
-        Records=records
+    pending = records
+
+    for attempt in range(1, MAX_BATCH_REPLAY_ATTEMPTS + 1):
+        resp = firehose.put_record_batch(
+            DeliveryStreamName=FIREHOSE_STREAM,
+            Records=pending
+        )
+
+        failed = resp.get("FailedPutCount", 0)
+        print(f"Sent {len(pending)} records on attempt {attempt}, failed={failed}")
+
+        if failed == 0:
+            return
+
+        responses = resp.get("RequestResponses", [])
+        if len(responses) != len(pending):
+            raise Exception("Firehose batch response count did not match request count")
+
+        failed_records = []
+        error_codes = {}
+
+        for index, result in enumerate(responses):
+            error_code = result.get("ErrorCode")
+            if error_code:
+                failed_records.append(pending[index])
+                error_codes[error_code] = error_codes.get(error_code, 0) + 1
+
+        print(f"Retrying {len(failed_records)} failed records: {error_codes}")
+        pending = failed_records
+
+        if attempt < MAX_BATCH_REPLAY_ATTEMPTS:
+            time.sleep(min(2 ** attempt, 8))
+
+    raise Exception(
+        f"Firehose batch failed after {MAX_BATCH_REPLAY_ATTEMPTS} attempts for {len(pending)} records"
     )
-
-    failed = resp.get("FailedPutCount", 0)
-
-    print(f"Sent {len(records)} records, failed={failed}")
-
-    if failed > 0:
-        raise Exception("Firehose batch failed")
-
 
 # =========================
 # LAMBDA HANDLER

@@ -190,10 +190,26 @@ resource "aws_iam_policy" "cwl_failed_delivery_replay" {
         Sid    = "ReadBackupObjects"
         Effect = "Allow"
         Action = [
-          "s3:GetObject"
+          "s3:GetObject",
+          "s3:GetObjectTagging",
+          "s3:PutObject",
+          "s3:PutObjectTagging"
         ]
         Resource = [
           "${aws_s3_bucket.cwl_backup_bucket.arn}/*"
+        ]
+      },
+      {
+        Sid    = "UseS3BackupKmsKey"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+          "kms:GenerateDataKey",
+          "kms:DescribeKey"
+        ]
+        Resource = [
+          aws_kms_key.cc_cosmos_s3_kms_key.arn
         ]
       },
       {
@@ -233,14 +249,12 @@ resource "aws_iam_role" "cwl_failed_delivery_replay" {
 
 resource "aws_iam_role_policy_attachment" "cwl_failed_delivery_replay" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
-
   role       = aws_iam_role.cwl_failed_delivery_replay[0].name
   policy_arn = aws_iam_policy.cwl_failed_delivery_replay[0].arn
 }
 
 resource "aws_iam_role_policy_attachment" "cwl_failed_delivery_replay_basic" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
-
   role       = aws_iam_role.cwl_failed_delivery_replay[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
