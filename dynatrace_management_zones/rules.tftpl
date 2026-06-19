@@ -425,3 +425,7 @@ default_rules:
     type: "SELECTOR"
     enabled: true
     entity_selector: type(cloud:aws:dynamodb)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }
+  http_monitor:
+    type: "SELECTOR"
+    enabled: true
+    entity_selector: type(HTTP_CHECK)%{ if project_id != "" },tag(project-id:${project_id})%{ endif }
