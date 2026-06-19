@@ -96,3 +96,8 @@ variable "failed_delivery_sqs_message_retention_seconds" {
   type        = number
   default     = 1209600 # 14 days, which is the maximum retention period for SQS messages
 }
+
+variable "lambda_zip_output_path" {
+  description = "Path for the generated Lambda ZIP used across plan/apply jobs."
+  type        = string
+}
