@@ -6,9 +6,6 @@ data "archive_file" "cwl_failed_delivery_replay" {
   source_file = "${path.module}/src/lambda_function.py"
 }
 
-#checkov:skip=CKV_AWS_117:Lambda only accesses AWS managed services and does not require VPC connectivity
-#checkov:skip=CKV_AWS_116:DLQ coming in subsequent stories
-#checkov:skip=CKV_AWS_272:Code signing not required for internal utility Lambda
 resource "aws_lambda_function" "cwl_failed_delivery_replay" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
 

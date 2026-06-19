@@ -277,6 +277,9 @@ module "metric_stream" {
 
 }
 
+#checkov:skip=CKV_AWS_116:DLQ coming in later story
+#checkov:skip=CKV_AWS_117:No VPC required for this Lambda
+#checkov:skip=CKV_AWS_272:Code signing not required for internal utility Lambda
 module "aws_cwl_s3_bucket" {
   source                    = "./aws_cwl_cwm"
   for_each                  = try(var.tenant_vars.aws_cwl_cwm, {})
