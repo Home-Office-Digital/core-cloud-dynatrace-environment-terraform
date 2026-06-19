@@ -38,7 +38,8 @@ variable "default_rules"{
     "zookeeper",
     "zookeeper_replica",
     "zookeeper_client",
-    "dynamodb"
+    "dynamodb",
+    "http_monitor"
   ]
 }
 variable "zone_vars" {
