@@ -28,7 +28,7 @@ resource "aws_lambda_function" "cwl_failed_delivery_replay" {
   filename         = data.archive_file.cwl_failed_delivery_replay[0].output_path
   source_code_hash = data.archive_file.cwl_failed_delivery_replay[0].output_base64sha256
 
-  timeout     = 300
+  timeout     = 180
   memory_size = 512
   reserved_concurrent_executions = 5
 
