@@ -200,6 +200,19 @@ resource "aws_iam_policy" "cwl_failed_delivery_replay" {
         ]
       },
       {
+        Sid    = "ReadFailedDeliveryQueue"
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ChangeMessageVisibility"
+        ]
+        Resource = [
+          aws_sqs_queue.cwl_failed_delivery_events[0].arn
+        ]
+      },
+      {
         Sid    = "UseS3BackupKmsKey"
         Effect = "Allow"
         Action = [
