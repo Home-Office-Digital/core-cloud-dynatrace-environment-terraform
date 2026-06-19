@@ -39,3 +39,5 @@ terraform.rc
 .DS_Store
 
 **/__not_tracked_*
+
+lambda-artifacts/

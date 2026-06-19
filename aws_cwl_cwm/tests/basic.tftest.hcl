@@ -4,6 +4,7 @@ mock_provider "aws" {}
 variables {
   ingestion_type  = "logs"
   tags            = {}
+  lambda_zip_output_path  = "./lambda-artifacts/test-cwl-failed-delivery-replay.zip"
 }
 
 # TEST 1: Basic plan succeeds
