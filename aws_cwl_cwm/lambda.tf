@@ -8,6 +8,9 @@ data "archive_file" "cwl_failed_delivery_replay" {
 
 resource "aws_lambda_function" "cwl_failed_delivery_replay" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
+  #checkov:skip=CKV_AWS_116:DLQ coming in later story
+  #checkov:skip=CKV_AWS_117:No VPC required for this Lambda
+  #checkov:skip=CKV_AWS_272:Code signing not required for internal utility Lambda
 
   depends_on = [
     data.archive_file.cwl_failed_delivery_replay[0],

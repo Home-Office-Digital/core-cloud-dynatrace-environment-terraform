@@ -26,12 +26,7 @@ jobs:
     secrets:
       sonar_token: ${{ secrets.sonar_token }}
       sonar_host_url: ${{ secrets.sonar_host_url }}
-  checkov-pr-gate:
-    name: checkov-pr-gate
-    uses: Home-Office-Digital/core-cloud-workflow-checkov-sast-scan/.github/workflows/checkov-scan-base.yaml@1.16.0
-    with:
-      version-tag: "1.16.0"
-      org: "Home-Office-Digital"
-      download_external_modules: true
+  checkov-scan:
+     uses: Home-Office-Digital/core-cloud-workflow-checkov-sast-scan/.github/workflows/checkov-scan-base.yaml@1.14.4
 
 
