@@ -8,10 +8,11 @@ locals {
 resource "aws_sqs_queue" "cwl_failed_delivery_events" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
 
-  name                      = local.failed_delivery_queue_name
-  sqs_managed_sse_enabled   = true
-  message_retention_seconds = var.failed_delivery_sqs_message_retention_seconds
-  tags                      = var.tags
+  name                        = local.failed_delivery_queue_name
+  sqs_managed_sse_enabled     = true
+  visibility_timeout_seconds  = 1080
+  message_retention_seconds   = var.failed_delivery_sqs_message_retention_seconds
+  tags                        = var.tags
 }
 
 resource "aws_s3_bucket_notification" "cwl_failed_delivery_events" {

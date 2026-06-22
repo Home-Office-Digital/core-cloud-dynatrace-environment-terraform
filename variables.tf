@@ -15,3 +15,8 @@ variable "slack_webhook_urls" {
   default     = {} # Provided to ignore when the module is skipped in an environment.
   sensitive   = true
 }
+
+variable "terragrunt_dir" {
+  description = "Original terragrunt working directory outside .terragrunt-cache."
+  type        = string
+}
