@@ -68,6 +68,25 @@ resource "aws_kms_key" "cc_cosmos_s3_kms_key" {
           "kms:DescribeKey"
         ],
         Resource = "*"
+      },
+      {
+        Sid    = "AllowLambdaServiceToUseKey",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
+        Resource = "*",
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
       }
 
     ]
