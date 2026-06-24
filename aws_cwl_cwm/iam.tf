@@ -193,7 +193,8 @@ resource "aws_iam_policy" "cwl_failed_delivery_replay" {
           "s3:GetObject",
           "s3:GetObjectTagging",
           "s3:PutObject",
-          "s3:PutObjectTagging"
+          "s3:PutObjectTagging",
+          "s3:DeleteObject"
         ]
         Resource = [
           "${aws_s3_bucket.cwl_backup_bucket.arn}/*"

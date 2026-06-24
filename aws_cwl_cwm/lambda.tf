@@ -35,7 +35,14 @@ resource "aws_lambda_function" "cwl_failed_delivery_replay" {
   tracing_config {
     mode = "Active"
   }
-
+  environment {
+    variables = {
+      FIREHOSE_STREAM = aws_kinesis_firehose_delivery_stream.dynatrace_http_stream.name
+      MAX_RETRIES     = tostring(var.replay_max_retries)
+      DLQ_PREFIX      = var.replay_dlq_prefix
+    }
+  }
+  
   tags = var.tags
 }
 
