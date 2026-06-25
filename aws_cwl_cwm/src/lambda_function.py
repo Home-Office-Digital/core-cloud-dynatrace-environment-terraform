@@ -4,13 +4,14 @@ import base64
 import gzip
 import urllib.parse
 import time
+import os
 
 s3 = boto3.client("s3")
 firehose = boto3.client("firehose")
 
-FIREHOSE_STREAM = "cc-cosmos-cwl-firehose"
-MAX_RETRIES = 3
-DLQ_PREFIX = "errors/deadletter/"
+FIREHOSE_STREAM = os.environ["FIREHOSE_STREAM"]
+MAX_RETRIES = int(os.environ.get("MAX_RETRIES", "3"))
+DLQ_PREFIX = os.environ.get("DLQ_PREFIX", "errors/deadletter/")
 BATCH_SIZE = 500
 MAX_BATCH_REPLAY_ATTEMPTS = 3
 
@@ -56,16 +57,46 @@ def update_retry_count(bucket, key, existing_tags, retry_count):
 # =========================
 # DLQ HANDLING
 # =========================
-def move_to_deadletter(bucket, key, raw_bytes):
-    dlq_key = f"{DLQ_PREFIX}{key.split('/')[-1]}"
+def move_to_deadletter(bucket, key, retry_count):
+    dlq_key = f"{DLQ_PREFIX}{key}"
 
-    s3.put_object(
+    s3.copy_object(
         Bucket=bucket,
-        Key=dlq_key,
-        Body=raw_bytes
+        CopySource={
+            "Bucket": bucket,
+            "Key": key
+        },
+        Key=dlq_key
     )
 
-    print(f"Moved to DLQ: s3://{bucket}/{dlq_key}")
+    s3.put_object_tagging(
+        Bucket=bucket,
+        Key=dlq_key,
+        Tagging={
+            "TagSet": [
+                {
+                    "Key": "deadLettered",
+                    "Value": "true"
+                },
+                {
+                    "Key": "retryCount",
+                    "Value": str(retry_count)
+                }
+            ]
+        }
+    )
+
+    s3.delete_object(
+        Bucket=bucket,
+        Key=key
+    )
+
+    print(
+        f"DEADLETTER bucket={bucket} "
+        f"source_key={key} "
+        f"target_key={dlq_key} "
+        f"retry_count={retry_count}"
+    )
 
 
 # =========================
@@ -133,50 +164,70 @@ def lambda_handler(event, context):
             retry_count, tags = get_retry_count(bucket, key)
 
             if retry_count >= MAX_RETRIES:
-                obj = s3.get_object(Bucket=bucket, Key=key)
-                move_to_deadletter(bucket, key, obj["Body"].read())
+                move_to_deadletter(
+                    bucket,
+                    key,
+                    retry_count
+                )
                 continue
 
-            update_retry_count(bucket, key, tags, retry_count + 1)
+            try:
 
-            obj = s3.get_object(Bucket=bucket, Key=key)
-            raw_bytes = obj["Body"].read()
+                obj = s3.get_object(Bucket=bucket, Key=key)
+                raw_bytes = obj["Body"].read()
 
-            if raw_bytes[:2] == b"\x1f\x8b":
-                decompressed = gzip.decompress(raw_bytes)
-            else:
-                decompressed = raw_bytes
+                if raw_bytes[:2] == b"\x1f\x8b":
+                    decompressed = gzip.decompress(raw_bytes)
+                else:
+                    decompressed = raw_bytes
 
-            text = decompressed.decode("utf-8", errors="replace")
+                text = decompressed.decode("utf-8", errors="replace")
 
-            for line in text.splitlines():
+                for line in text.splitlines():
 
-                if not line.strip():
-                    continue
+                    if not line.strip():
+                        continue
 
-                try:
-                    event_obj = json.loads(line)
-                except Exception as e:
-                    print(f"Bad JSON line: {e}")
-                    continue
+                    try:
+                        event_obj = json.loads(line)
+                    except Exception as e:
+                        print(f"Bad JSON line: {e}")
+                        continue
 
-                raw_data = event_obj.get("rawData")
-                if not raw_data:
-                    continue
+                    raw_data = event_obj.get("rawData")
+                    if not raw_data:
+                        continue
 
-                try:
-                    log_line = decode_raw_data(raw_data)
-                except Exception as e:
-                    print(f"Decode failed: {e}")
-                    continue
+                    try:
+                        log_line = decode_raw_data(raw_data)
+                    except Exception as e:
+                        print(f"Decode failed: {e}")
+                        continue
 
-                batch.append({
-                    "Data": (log_line + "\n").encode("utf-8")
-                })
+                    batch.append({
+                        "Data": (log_line + "\n").encode("utf-8")
+                    })
 
-                if len(batch) >= BATCH_SIZE:
-                    flush(batch)
-                    batch = []
+                    if len(batch) >= BATCH_SIZE:
+                        flush(batch)
+                        batch = []
+
+            except Exception as e:
+
+                update_retry_count(
+                    bucket,
+                    key,
+                    tags,
+                    retry_count + 1
+                )
+
+                print(
+                    f"Replay failed for s3://{bucket}/{key}, "
+                    f"retryCount={retry_count + 1}, "
+                    f"error={str(e)}"
+                )
+
+                raise
 
     if batch:
         flush(batch)

@@ -101,3 +101,13 @@ variable "lambda_zip_output_path" {
   description = "Path for the generated Lambda ZIP used across plan/apply jobs."
   type        = string
 }
+
+variable "replay_max_retries" {
+  type    = number
+  default = 3
+}
+
+variable "replay_dlq_prefix" {
+  type    = string
+  default = "errors/deadletter/"
+}

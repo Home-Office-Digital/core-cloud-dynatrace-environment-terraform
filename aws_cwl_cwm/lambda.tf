@@ -36,6 +36,15 @@ resource "aws_lambda_function" "cwl_failed_delivery_replay" {
     mode = "Active"
   }
 
+  kms_key_arn = aws_kms_key.cc_cosmos_s3_kms_key.arn
+  environment {
+    variables = {
+      FIREHOSE_STREAM = aws_kinesis_firehose_delivery_stream.dynatrace_http_stream.name
+      MAX_RETRIES     = tostring(var.replay_max_retries)
+      DLQ_PREFIX      = var.replay_dlq_prefix
+    }
+  }
+  
   tags = var.tags
 }
 

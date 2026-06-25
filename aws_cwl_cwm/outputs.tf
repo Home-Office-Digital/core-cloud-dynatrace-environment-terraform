@@ -30,3 +30,7 @@ output "failed_delivery_s3_notification_prefix" {
   description = "S3 key prefix used to route ObjectCreated notifications for failed HTTP endpoint backups."
   value       = var.ingestion_type == "logs" ? local.failed_delivery_error_prefix : null
 }
+
+output "lambda_zip_output_path" {
+  value = var.lambda_zip_output_path
+}
