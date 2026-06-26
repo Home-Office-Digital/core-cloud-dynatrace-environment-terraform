@@ -53,6 +53,11 @@ resource "aws_iam_policy" "cc_cosmos_cwl_firehose_s3_logs_kms_policy" {
           "logs:PutLogEvents"
         ]
         Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
+        }
       },
       {
         Sid    = "KMSAccess"
