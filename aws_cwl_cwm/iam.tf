@@ -195,6 +195,8 @@ resource "aws_iam_policy" "cwl_failed_delivery_replay" {
         Sid    = "ReadBackupObjects"
         Effect = "Allow"
         Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
           "s3:GetObject",
           "s3:GetObjectTagging",
           "s3:PutObject",
@@ -202,6 +204,7 @@ resource "aws_iam_policy" "cwl_failed_delivery_replay" {
           "s3:DeleteObject"
         ]
         Resource = [
+          aws_s3_bucket.cwl_backup_bucket.arn,
           "${aws_s3_bucket.cwl_backup_bucket.arn}/*"
         ]
       },
