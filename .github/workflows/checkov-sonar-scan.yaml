@@ -21,10 +21,10 @@ permissions:
   security-events: write
 
 jobs:
-  sonarqube-scanner:
-    uses: Home-Office-Digital/core-cloud-workflow-sonarqube-scan/.github/workflows/sonarqube-scan.yaml@1.1.8
-    secrets:
-      sonar_token: ${{ secrets.sonar_token }}
-      sonar_host_url: ${{ secrets.sonar_host_url }}
   checkov-scan:
-     uses: Home-Office-Digital/core-cloud-workflow-checkov-sast-scan/.github/workflows/checkov-scan-base.yaml@a25892b307f06f1afabcee89dcfce9f849aa62b4 #1.14.5
+    uses: Home-Office-Digital/core-cloud-workflow-checkov-sast-scan/.github/workflows/checkov-scan-base.yaml@b929b7bfd1c4d2f6ea6995311c8f0243a474b5ae #1.18.0
+  sonarqube-scanner:
+    uses: Home-Office-Digital/core-cloud-workflow-sonarqube-scan/.github/workflows/sonarqube-scan.yaml@dc8836ac155426422a32235ecc4602ed533c9635  #1.1.8
+    secrets:
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
+      sonar_host_url: ${{ secrets.SONAR_HOST_URL }}
