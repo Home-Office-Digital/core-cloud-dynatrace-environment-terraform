@@ -9,7 +9,7 @@ data "archive_file" "cwl_failed_delivery_replay" {
 resource "aws_signer_signing_profile" "cwl_failed_delivery_replay" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
 
-  name        = substr("${local.firehose_name}-fd-replay-signer", 0, 64)
+  name        = substr("${replace(local.firehose_name, "-", "")}fdreplaysigner", 0, 64)
   platform_id = "AWSLambda-SHA384-ECDSA"
 }
 
