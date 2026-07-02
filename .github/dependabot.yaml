@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "(GHA)"
+      prefix: "chore:"
     reviewers:
       - "Home-Office-Digital/hoos-engineering"
     labels:
@@ -16,7 +16,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "(TF)"
+      prefix: "chore:"
     reviewers:
       - "Home-Office-Digital/hoos-engineering"
     labels:
