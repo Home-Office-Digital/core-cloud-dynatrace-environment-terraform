@@ -7,7 +7,7 @@ updates:
     commit-message:
       prefix: "(GHA)"
     reviewers:
-      - "Home-Office-Digital/core-cloud-devops"
+      - "Home-Office-Digital/hoos-engineering"
     labels:
       - "dependencies"
       - "patch"
@@ -18,7 +18,7 @@ updates:
     commit-message:
       prefix: "(TF)"
     reviewers:
-      - "Home-Office-Digital/core-cloud-devops"
+      - "Home-Office-Digital/hoos-engineering"
     labels:
       - "dependencies"
       - "patch"
