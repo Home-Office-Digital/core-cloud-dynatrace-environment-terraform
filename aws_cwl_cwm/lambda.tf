@@ -6,11 +6,30 @@ data "archive_file" "cwl_failed_delivery_replay" {
   source_file = "${path.module}/src/lambda_function.py"
 }
 
+resource "aws_signer_signing_profile" "cwl_failed_delivery_replay" {
+  count = local.failed_delivery_notifications_enabled ? 1 : 0
+
+  name        = substr("${replace(local.firehose_name, "-", "")}fdreplaysigner", 0, 64)
+  platform_id = "AWSLambda-SHA384-ECDSA"
+}
+
+resource "aws_lambda_code_signing_config" "cwl_failed_delivery_replay" {
+  count = local.failed_delivery_notifications_enabled ? 1 : 0
+
+  allowed_publishers {
+    signing_profile_version_arns = [aws_signer_signing_profile.cwl_failed_delivery_replay[0].version_arn]
+  }
+
+  # Keep deployments non-blocking until artifact signing is in place.
+  policies {
+    untrusted_artifact_on_deployment = "Warn"
+  }
+}
+
 resource "aws_lambda_function" "cwl_failed_delivery_replay" {
   count = local.failed_delivery_notifications_enabled ? 1 : 0
   #checkov:skip=CKV_AWS_116:DLQ coming in later story
   #checkov:skip=CKV_AWS_117:No VPC required for this Lambda
-  #checkov:skip=CKV_AWS_272:Code signing not required for internal utility Lambda
 
   depends_on = [
     data.archive_file.cwl_failed_delivery_replay[0],
@@ -25,11 +44,12 @@ resource "aws_lambda_function" "cwl_failed_delivery_replay" {
   runtime = "python3.12"
   handler = "lambda_function.lambda_handler"
 
-  filename         = data.archive_file.cwl_failed_delivery_replay[0].output_path
-  source_code_hash = data.archive_file.cwl_failed_delivery_replay[0].output_base64sha256
+  filename                = data.archive_file.cwl_failed_delivery_replay[0].output_path
+  source_code_hash        = data.archive_file.cwl_failed_delivery_replay[0].output_base64sha256
+  code_signing_config_arn = aws_lambda_code_signing_config.cwl_failed_delivery_replay[0].arn
 
-  timeout     = 180
-  memory_size = 512
+  timeout                        = 180
+  memory_size                    = 512
   reserved_concurrent_executions = 5
 
   tracing_config {
@@ -44,7 +64,7 @@ resource "aws_lambda_function" "cwl_failed_delivery_replay" {
       DLQ_PREFIX      = var.replay_dlq_prefix
     }
   }
-  
+
   tags = var.tags
 }
 
