@@ -1,18 +1,18 @@
 mock_provider "dynatrace" {}
 
 variables {
-  name         = "cc-playground-logs"
+  name         = "cc-logs"
   retention    = 35
   table        = "logs"
-  display_name = "Custom logs bucket playground"
+  display_name = "CC logs bucket"
 }
 
-run "plan_creates_platform_bucket_for_playground" {
+run "plan_creates_platform_bucket" {
   command = plan
 
   assert {
-    condition     = output.name == "cc-playground-logs"
-    error_message = "Expected playground bucket name to match input"
+    condition     = output.name == "cc-logs"
+    error_message = "Expected bucket name to match input"
   }
 
   assert {
@@ -26,7 +26,7 @@ run "plan_creates_platform_bucket_for_playground" {
   }
 
   assert {
-    condition     = output.display_name == "Custom logs bucket playground"
-    error_message = "Expected display name to match playground bucket naming"
+    condition     = output.display_name == "CC logs bucket"
+    error_message = "Expected display name to match input"
   }
 }
