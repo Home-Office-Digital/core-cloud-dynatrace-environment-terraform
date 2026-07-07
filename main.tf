@@ -303,3 +303,14 @@ module "platform_dashboards" {
   #mandatory if enabled with var.tenant_vars.platform_dashboards hence no checks
   groups_to_share = var.tenant_vars.platform_dashboards.groups
 }
+
+module "dynatrace_platform_buckets" {
+  source = "./dynatrace_platform_buckets"
+
+  for_each = contains(keys(var.tenant_vars), "platform_buckets") ? var.tenant_vars.platform_buckets : {}
+
+  name         = each.key
+  retention    = each.value.retention
+  table        = each.value.table
+  display_name = try(each.value.display_name, null)
+}

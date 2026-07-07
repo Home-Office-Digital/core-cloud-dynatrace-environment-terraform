@@ -66,6 +66,18 @@ Setting any 'Rules' for a Management Zone is entirely optional, but opening a "R
 
 For information on further options and attributes for the Zone and the Rules (whether 'attribute' or 'dimension') contained therein, please refer to the [Dynatrace Documentation](https://docs.dynatrace.com/docs/manage/identity-access-management/permission-management/management-zones) and the base [Terraform for the v2 resource](https://registry.terraform.io/providers/dynatrace-oss/dynatrace/latest/docs/resources/management_zone_v2) to clarify required/optional arguments.
 
+## Platform Buckets
+
+Dynatrace Grail platform buckets can be managed by adding a `platform_buckets` block to your tenant configuration.
+
+```
+platform_buckets:
+  cc-playground-logs:
+    display_name: "Custom logs bucket playground"
+    retention: 35
+    table: "logs"
+```
+
 
 <!-- BEGIN_TF_DOCS -->
 
