@@ -18,6 +18,7 @@ jobs:
       matrix:
         module:
           - aws_cwl_cwm
+          - dynatrace_platform_buckets
     steps:
       - name: Clone the Repository
         uses: actions/checkout@v4
