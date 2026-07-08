@@ -3,7 +3,6 @@ mock_provider "dynatrace" {}
 variables {
   name         = "cc-logs"
   retention    = 35
-  table        = "logs"
   display_name = "CC logs bucket"
 }
 
