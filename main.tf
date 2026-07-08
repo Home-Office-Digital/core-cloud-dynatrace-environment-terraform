@@ -311,6 +311,6 @@ module "dynatrace_platform_buckets" {
 
   name         = each.key
   retention    = each.value.retention
-  table        = each.value.table
+  table        = try(each.value.table, null)
   display_name = try(each.value.display_name, null)
 }
