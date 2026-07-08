@@ -72,10 +72,9 @@ Dynatrace Grail platform buckets can be managed by adding a `platform_buckets` b
 
 ```
 platform_buckets:
-  cc-playground-logs:
-    display_name: "Custom logs bucket playground"
+  cc-logs:
+    display_name: "Custom logs bucket"
     retention: 35
-    table: "logs"
 ```
 
 
