@@ -11,6 +11,7 @@ variable "retention" {
 variable "table" {
   description = "The Grail table this bucket applies to"
   type        = string
+  default     = "logs"
 
   validation {
     condition     = contains(["logs", "spans", "events", "bizevents"], var.table)
