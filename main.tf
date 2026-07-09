@@ -218,6 +218,10 @@ module "dynatrace_kafka_settings" {
   kafka_streams = try(var.tenant_vars.kafka_settings.kafka_streams, false)
 }
 
+module "dynatrace_kubernetes_enrichment" {
+  source = "./settings/kubernetes_enrichment"
+}
+
 module "hub_extensions" {
 
   source   = "./hub_extensions"
@@ -278,14 +282,14 @@ module "metric_stream" {
 }
 
 module "aws_cwl_s3_bucket" {
-  source                    = "./aws_cwl_cwm"
-  for_each                  = try(var.tenant_vars.aws_cwl_cwm, {})
-  tags                      = each.value.tags
-  lifecycle_expiration_days = each.value.lifecycle_expiration_days
-  days_after_initiation     = each.value.days_after_initiation
+  source                                        = "./aws_cwl_cwm"
+  for_each                                      = try(var.tenant_vars.aws_cwl_cwm, {})
+  tags                                          = each.value.tags
+  lifecycle_expiration_days                     = each.value.lifecycle_expiration_days
+  days_after_initiation                         = each.value.days_after_initiation
   failed_delivery_sqs_message_retention_seconds = try(each.value.failed_delivery_sqs_message_retention_seconds, null)
-  lambda_zip_output_path = "${dirname(var.terragrunt_dir)}/lambda-artifacts/${each.key}-${basename(var.terragrunt_dir)}-cwl-failed-delivery-replay.zip"
-  ingestion_type            = each.value.ingestion_type
+  lambda_zip_output_path                        = "${dirname(var.terragrunt_dir)}/lambda-artifacts/${each.key}-${basename(var.terragrunt_dir)}-cwl-failed-delivery-replay.zip"
+  ingestion_type                                = each.value.ingestion_type
 }
 
 module "monitoring_k8s_clusters" {
