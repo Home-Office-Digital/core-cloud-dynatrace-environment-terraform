@@ -77,6 +77,18 @@ platform_buckets:
     retention: 35
 ```
 
+## Kubernetes Enrichment
+
+This module creates a Kubernetes telemetry enrichment rule for every tenant by default.
+
+```
+type: "LABEL"
+source: "project-id"
+target: "dt.security_context"
+```
+
+The rule enriches Kubernetes telemetry with `dt.security_context` from the namespace label `project-id`, so no tenant-side `kubernetes_enrichment` block is required.
+
 
 <!-- BEGIN_TF_DOCS -->
 
