@@ -219,6 +219,7 @@ module "dynatrace_kafka_settings" {
 }
 
 module "dynatrace_kubernetes_enrichment" {
+  count  = contains(keys(var.tenant_vars), "kubernetes_enrichment") ? 1 : 0
   source = "./settings/kubernetes_enrichment"
 }
 
