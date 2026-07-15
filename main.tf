@@ -318,3 +318,17 @@ module "dynatrace_platform_buckets" {
   retention    = each.value.retention
   display_name = try(each.value.display_name, null)
 }
+
+module "dynatrace_log_bucket_assignment" {
+  source = "./dynatrace_log_bucket_assignment"
+  count  = contains(keys(var.tenant_vars), "log_bucket_assignment") ? 1 : 0
+
+  pipeline_custom_id             = var.tenant_vars.log_bucket_assignment.pipeline_custom_id
+  pipeline_display_name          = var.tenant_vars.log_bucket_assignment.pipeline_display_name
+  group_role                     = try(var.tenant_vars.log_bucket_assignment.group_role, "basePipeline")
+  routing                        = try(var.tenant_vars.log_bucket_assignment.routing, null)
+  allow_manage_existing_pipeline = try(var.tenant_vars.log_bucket_assignment.allow_manage_existing_pipeline, false)
+  enforce_tier1_only_active      = try(var.tenant_vars.log_bucket_assignment.enforce_tier1_only_active, false)
+  tier1_rule_id_regex            = try(var.tenant_vars.log_bucket_assignment.tier1_rule_id_regex, "tier1")
+  rules                          = var.tenant_vars.log_bucket_assignment.rules
+}

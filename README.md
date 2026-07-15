@@ -77,6 +77,32 @@ platform_buckets:
     retention: 35
 ```
 
+## Log Bucket Assignment
+
+Bucket-assignment rules for an existing Dynatrace OpenPipeline logs pipeline can be managed by adding a `log_bucket_assignment` block to your tenant configuration. Rules are evaluated in order (first match wins) — always end the list with a catch-all (`matcher: "true"`).
+
+```
+log_bucket_assignment:
+  allow_manage_existing_pipeline: true
+  pipeline_custom_id: "logs"
+  pipeline_display_name: "logs"
+  enforce_tier1_only_active: true
+  tier1_rule_id_regex: "tier1"
+  rules:
+    - id: "processor_kubernetes_info_tier1"
+      description: "Kubernetes info logs to tier1"
+      matcher: 'k8s.namespace.name != null and loglevel == "INFO"'
+      bucket_name: "kubernetes_info_tier1"
+    - id: "processor_catch_all"
+      description: "Anything unmatched"
+      matcher: "true"
+      bucket_name: "unknown"
+```
+
+⚠️ The underlying resource owns the pipeline's entire definition, not just the rules declared here — see `dynatrace_log_bucket_assignment/README.md` for the required import step before first apply against a tenant that already has a live pipeline.
+
+`allow_manage_existing_pipeline` defaults to `false` and acts as a deliberate safety gate. Set it to `true` only after importing the target pipeline and reviewing a plan that confirms no unintended non-storage stage changes.
+
 ## Kubernetes Enrichment
 
 This module creates a Kubernetes telemetry enrichment rule for every tenant by default.
