@@ -36,7 +36,7 @@ module "dynatrace_log_bucket_assignment" {
     {
       id          = "processor_kubernetes_info_tier1"
       description = "Kubernetes info logs to tier1"
-      matcher     = "k8s.namespace.name != null and loglevel == \"INFO\""
+      matcher     = "isNotNull(k8s.namespace.name) and loglevel == \"INFO\""
       bucket_name = "kubernetes_info_tier1"
     },
     {
@@ -61,7 +61,7 @@ log_bucket_assignment:
   rules:
     - id: "processor_kubernetes_info_tier1"
       description: "Kubernetes info logs to tier1"
-      matcher: 'k8s.namespace.name != null and loglevel == "INFO"'
+      matcher: 'isNotNull(k8s.namespace.name) and loglevel == "INFO"'
       bucket_name: "kubernetes_info_tier1"
     - id: "processor_catch_all"
       description: "Anything unmatched"

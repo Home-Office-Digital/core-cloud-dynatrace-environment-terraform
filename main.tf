@@ -330,5 +330,6 @@ module "dynatrace_log_bucket_assignment" {
   allow_manage_existing_pipeline = try(var.tenant_vars.log_bucket_assignment.allow_manage_existing_pipeline, false)
   enforce_tier1_only_active      = try(var.tenant_vars.log_bucket_assignment.enforce_tier1_only_active, false)
   tier1_rule_id_regex            = try(var.tenant_vars.log_bucket_assignment.tier1_rule_id_regex, "tier1")
+  security_context_rules         = try(var.tenant_vars.log_bucket_assignment.security_context_rules, [])
   rules                          = var.tenant_vars.log_bucket_assignment.rules
 }

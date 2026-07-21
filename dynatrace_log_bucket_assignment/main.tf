@@ -11,6 +11,33 @@ resource "dynatrace_openpipeline_v2_logs_pipelines" "log_bucket_assignment" {
     }
   }
 
+  dynamic "security_context" {
+    for_each = length(var.security_context_rules) > 0 ? [1] : []
+    content {
+      processors {
+        dynamic "processor" {
+          for_each = var.security_context_rules
+          content {
+            type        = "securityContext"
+            id          = processor.value.id
+            description = processor.value.description
+            enabled     = processor.value.enabled
+            matcher     = processor.value.matcher
+
+            security_context {
+              value {
+                type = "field"
+                field {
+                  source_field_name = processor.value.source_field_name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   storage {
     processors {
       dynamic "processor" {
