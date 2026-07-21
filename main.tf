@@ -333,3 +333,28 @@ module "dynatrace_log_bucket_assignment" {
   security_context_rules         = try(var.tenant_vars.log_bucket_assignment.security_context_rules, [])
   rules                          = var.tenant_vars.log_bucket_assignment.rules
 }
+
+module "dynatrace_log_routing" {
+  source = "./dynatrace_log_routing"
+  count  = contains(keys(var.tenant_vars), "log_routing") ? 1 : 0
+
+  allow_manage_existing_routing = try(var.tenant_vars.log_routing.allow_manage_existing_routing, false)
+
+  # The route to our own `logs` pipeline is computed from its real resource id
+  # (not the custom_id "logs") rather than hand-entered, so it can't drift from
+  # what dynatrace_log_bucket_assignment actually creates. routes_before/routes_after
+  # from tenant_vars supply every other entry that must exist in the table,
+  # in their live priority order, since this resource replaces the whole table on apply.
+  routes = concat(
+    try(var.tenant_vars.log_routing.routes_before, []),
+    [{
+      description         = "Route to OpenPipeline logs base pipeline"
+      enabled             = true
+      matcher             = "true"
+      pipeline_type       = "custom"
+      builtin_pipeline_id = null
+      pipeline_id         = module.dynatrace_log_bucket_assignment[0].id
+    }],
+    try(var.tenant_vars.log_routing.routes_after, [])
+  )
+}
