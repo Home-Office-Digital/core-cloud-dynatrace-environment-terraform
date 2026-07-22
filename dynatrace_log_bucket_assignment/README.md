@@ -14,6 +14,11 @@ If the pipeline referenced by `pipeline_custom_id` already exists (which it almo
 1. `terraform import dynatrace_openpipeline_v2_logs_pipelines.log_bucket_assignment <pipeline_custom_id>`
 2. `terraform plan` and inspect the diff carefully — if it proposes removing/clearing any stage other than `storage`, that stage's configuration needs to be added to this module (or the calling module) as static blocks matching the imported state before you apply for real.
 
+## ⚠️ `group_role` / `routing` interaction, and renaming
+
+- The API rejects `routing = "routable"` on any pipeline with `group_role = "basePipeline"` — a base pipeline structurally cannot be a Dynamic Routing target. If this pipeline needs to receive traffic via a dynamic route (see `dynatrace_log_routing`), it must be `group_role = "memberPipeline"` with `routing = "routable"` set explicitly — the module's own default (`basePipeline`) will not work for that case.
+- `custom_id` is immutable. Changing `pipeline_custom_id` (e.g. a rename) forces Terraform to destroy the old pipeline and create a new one. This module sets `lifecycle { create_before_destroy = true }` specifically so the new pipeline exists (and anything referencing its `id`, like `dynatrace_log_routing`, can re-point to it) *before* the old one is destroyed — without that, the destroy fails outright if the old pipeline's id is still referenced elsewhere (e.g. the dynamic routing table), since the API refuses to delete an object something else still points to.
+
 ## Example usage
 
 ```hcl
@@ -26,7 +31,11 @@ module "dynatrace_log_bucket_assignment" {
 
   pipeline_custom_id    = "logs"
   pipeline_display_name = "logs"
-  group_role            = "basePipeline"
+  # memberPipeline + routable: required if this pipeline should receive traffic
+  # via a dynamic route (see dynatrace_log_routing). The default, basePipeline,
+  # cannot be made routable - the API rejects that combination.
+  group_role            = "memberPipeline"
+  routing               = "routable"
 
   # Transition toggle: only rules whose id matches this regex can stay enabled.
   enforce_tier1_only_active = true
@@ -56,6 +65,8 @@ log_bucket_assignment:
   allow_manage_existing_pipeline: true
   pipeline_custom_id: "logs"
   pipeline_display_name: "logs"
+  group_role: "memberPipeline"
+  routing: "routable"
   enforce_tier1_only_active: true
   tier1_rule_id_regex: "tier1"
   rules:
@@ -86,6 +97,7 @@ log_bucket_assignment:
 
 | Name | Description |
 |------|-------------|
+| `id` | The pipeline's real resource id (not `custom_id`) - reference this from anything that needs to point at the pipeline, e.g. a `dynatrace_log_routing` route entry, so it can't drift if the pipeline is ever recreated |
 | `pipeline_custom_id` | The managed pipeline's `custom_id` |
 | `pipeline_display_name` | The managed pipeline's `display_name` |
 | `rule_count` | Number of rules applied |
