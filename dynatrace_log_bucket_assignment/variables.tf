@@ -31,7 +31,10 @@ variable "routing" {
   default     = null
 
   validation {
-    condition     = var.routing == null || contains(["notRoutable", "routable"], var.routing)
+    # try() guards contains() from being evaluated against a real null - `||`
+    # does not stop Terraform from evaluating (and erroring on) the right-hand
+    # side just because the left-hand side is already true.
+    condition     = var.routing == null || try(contains(["notRoutable", "routable"], var.routing), false)
     error_message = "routing must be one of: notRoutable, routable."
   }
 }
