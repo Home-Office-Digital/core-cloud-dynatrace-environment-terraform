@@ -61,7 +61,10 @@ module "dynatrace_log_bucket_assignment" {
 At the root module level this is driven by a `log_bucket_assignment` map in
 tenant configuration, keyed by category (`main.tf` calls this module with
 `for_each`, one pipeline per key - see the root README / `dynatrace_log_routing`
-for how multiple categories route independently):
+for how multiple categories route independently). `pipeline_custom_id` is
+chosen per-category, not derived from the key - the calling module's `check`
+block fails plan if two categories collide on the same `pipeline_custom_id`,
+rather than letting that surface as an API error against the live tenant.
 
 ```yaml
 log_bucket_assignment:

@@ -370,6 +370,20 @@ check "log_bucket_assignment_categories_need_distinct_matchers" {
   }
 }
 
+check "log_bucket_assignment_custom_ids_must_be_unique" {
+  assert {
+    # pipeline_custom_id is chosen per-category by whoever adds it, not derived
+    # from the category key - nothing else stops two categories colliding on
+    # the same id, which would otherwise only surface as an API error at apply
+    # time against the live tenant.
+    condition = (
+      length([for k, v in try(var.tenant_vars.log_bucket_assignment, {}) : v.pipeline_custom_id]) ==
+      length(distinct([for k, v in try(var.tenant_vars.log_bucket_assignment, {}) : v.pipeline_custom_id]))
+    )
+    error_message = "Two or more log_bucket_assignment categories share the same pipeline_custom_id. Each category needs its own unique custom_id."
+  }
+}
+
 module "dynatrace_log_routing" {
   source = "./dynatrace_log_routing"
   count  = contains(keys(var.tenant_vars), "log_routing") ? 1 : 0
