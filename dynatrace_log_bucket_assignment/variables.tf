@@ -87,7 +87,11 @@ variable "tier1_rule_id_regex" {
   default     = "tier1"
 
   validation {
-    condition     = can(regex(var.tier1_rule_id_regex, "tier1"))
+    # regexall(), not regex(): regex() errors both on invalid syntax AND on
+    # valid-syntax-but-no-match, which would reject any correct custom pattern
+    # that doesn't happen to match the literal string "tier1" itself.
+    # regexall() only errors on genuinely invalid regex syntax.
+    condition     = can(regexall(var.tier1_rule_id_regex, "tier1"))
     error_message = "tier1_rule_id_regex must be a valid regex expression."
   }
 }
