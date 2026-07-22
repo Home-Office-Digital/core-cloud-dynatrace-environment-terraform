@@ -73,17 +73,17 @@ module "dynatrace_log_routing" {
       matcher       = "true"
       pipeline_type = "custom"
       # Computed from another module's real output, not hard-coded:
-      pipeline_id   = module.dynatrace_log_bucket_assignment["platform"].id
+      pipeline_id   = module.dynatrace_log_pipeline["platform"].id
     },
   ]
 }
 ```
 
 At the root module level this is driven by a `log_routing` block in tenant
-configuration. `dynatrace_log_bucket_assignment` is called with `for_each`,
+configuration. `dynatrace_log_pipeline` is called with `for_each`,
 keyed by category (e.g. `platform`, `security`) - the calling module
 (`main.tf`) injects one route per category automatically, computed from that
-category's own `module.dynatrace_log_bucket_assignment[<key>].id`, ordered
+category's own `module.dynatrace_log_pipeline[<key>].id`, ordered
 alphabetically by key. `routes_before` / `routes_after` in tenant config only
 need to supply *other* entries that must exist in the live table (e.g. routes
 to pipelines this repo doesn't manage):
@@ -96,15 +96,15 @@ log_routing:
 ```
 
 **Every category needs its own real `routing_matcher`** (set per-category,
-alongside that category's `log_bucket_assignment` entry - see that module's
+alongside that category's `log_pipeline` entry - see that module's
 README) once there's more than one. Routes are first-match-wins; two
 categories both left on the default `"true"` catch-all means only the
 alphabetically-first one ever receives anything - the calling module's `check`
 block catches this and fails plan with a clear message rather than leaving a
 category silently unreachable.
 
-Because each category's route is computed from `dynatrace_log_bucket_assignment`'s
-output, `log_routing` cannot be enabled without `log_bucket_assignment` also
+Because each category's route is computed from `dynatrace_log_pipeline`'s
+output, `log_routing` cannot be enabled without `log_pipeline` also
 being set - a separate `check` block in the calling module enforces this too.
 
 ## Inputs

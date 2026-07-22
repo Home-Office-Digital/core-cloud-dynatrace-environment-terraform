@@ -1,4 +1,4 @@
-# Dynatrace Log Bucket Assignment Module
+# Dynatrace Log Pipeline Module
 
 This module manages the **storage stage** of an existing Dynatrace OpenPipeline logs pipeline (`dynatrace_openpipeline_v2_logs_pipelines`), adding an ordered list of `bucketAssignment` processors that route logs into specific Grail buckets (e.g. the tiered `platform_buckets` created via the `dynatrace_platform_buckets` module) based on a DQL matcher.
 
@@ -22,8 +22,8 @@ If the pipeline referenced by `pipeline_custom_id` already exists (which it almo
 ## Example usage
 
 ```hcl
-module "dynatrace_log_bucket_assignment" {
-  source = "./dynatrace_log_bucket_assignment"
+module "dynatrace_log_pipeline" {
+  source = "./dynatrace_log_pipeline"
 
   # Safety gate: set true only after importing the existing pipeline and
   # reviewing a clean plan for non-storage stages.
@@ -58,7 +58,7 @@ module "dynatrace_log_bucket_assignment" {
 }
 ```
 
-At the root module level this is driven by a `log_bucket_assignment` map in
+At the root module level this is driven by a `log_pipeline` map in
 tenant configuration, keyed by category (`main.tf` calls this module with
 `for_each`, one pipeline per key - see the root README / `dynatrace_log_routing`
 for how multiple categories route independently). `pipeline_custom_id` is
@@ -67,7 +67,7 @@ block fails plan if two categories collide on the same `pipeline_custom_id`,
 rather than letting that surface as an API error against the live tenant.
 
 ```yaml
-log_bucket_assignment:
+log_pipeline:
   platform:
     allow_manage_existing_pipeline: true
     pipeline_custom_id: "logs"

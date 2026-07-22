@@ -319,18 +319,26 @@ module "dynatrace_platform_buckets" {
   display_name = try(each.value.display_name, null)
 }
 
+# The count -> for_each moved block that used to live here is retired: state
+# has been on module.dynatrace_log_bucket_assignment["platform"] since that
+# migration applied, so a "from = ...[0]" block would now be permanently inert
+# everywhere. This one replaces it for the module's rename to dynatrace_log_pipeline
+# (dynatrace_log_bucket_assignment was a misleading name - it owns the whole
+# pipeline resource, not just its bucket-assignment rules). from must stay as
+# the OLD module name here - it's the address actually in state right now,
+# not something to rename along with everything else.
 moved {
-  from = module.dynatrace_log_bucket_assignment[0]
-  to   = module.dynatrace_log_bucket_assignment["platform"]
+  from = module.dynatrace_log_bucket_assignment
+  to   = module.dynatrace_log_pipeline
 }
 
-module "dynatrace_log_bucket_assignment" {
-  source = "./dynatrace_log_bucket_assignment"
+module "dynatrace_log_pipeline" {
+  source = "./dynatrace_log_pipeline"
 
   # Keyed by category (e.g. "platform", "security") - one pipeline per key.
   # Each category owns its own pipeline stages independently; the only thing
   # shared across categories is the single tenant-wide routing table below.
-  for_each = try(var.tenant_vars.log_bucket_assignment, {})
+  for_each = try(var.tenant_vars.log_pipeline, {})
 
   pipeline_custom_id             = each.value.pipeline_custom_id
   pipeline_display_name          = each.value.pipeline_display_name
@@ -343,44 +351,44 @@ module "dynatrace_log_bucket_assignment" {
   rules                          = each.value.rules
 }
 
-check "log_routing_requires_log_bucket_assignment" {
+check "log_routing_requires_log_pipeline" {
   assert {
     condition = (
       !contains(keys(var.tenant_vars), "log_routing") ||
-      contains(keys(var.tenant_vars), "log_bucket_assignment")
+      contains(keys(var.tenant_vars), "log_pipeline")
     )
-    error_message = "tenant_vars.log_routing is set without tenant_vars.log_bucket_assignment. dynatrace_log_routing's own route entries are computed from module.dynatrace_log_bucket_assignment's outputs, so it can't be enabled on its own."
+    error_message = "tenant_vars.log_routing is set without tenant_vars.log_pipeline. dynatrace_log_routing's own route entries are computed from module.dynatrace_log_pipeline's outputs, so it can't be enabled on its own."
   }
 }
 
-check "log_bucket_assignment_categories_need_distinct_matchers" {
+check "log_pipeline_categories_need_distinct_matchers" {
   assert {
     # Every category needs a real routing_matcher once there's more than one -
     # two categories both left at the "true" catch-all default means only the
     # first (alphabetically, since map keys drive apply order) ever fires and
     # the rest are silently unreachable.
     condition = (
-      length(keys(try(var.tenant_vars.log_bucket_assignment, {}))) <= 1 ||
+      length(keys(try(var.tenant_vars.log_pipeline, {}))) <= 1 ||
       length([
-        for k, v in try(var.tenant_vars.log_bucket_assignment, {}) : k
+        for k, v in try(var.tenant_vars.log_pipeline, {}) : k
         if trimspace(lower(try(v.routing_matcher, "true"))) == "true"
       ]) <= 1
     )
-    error_message = "More than one log_bucket_assignment category is left on the default routing_matcher (\"true\"). Only the first ever matches - give every category beyond one a real, distinguishing routing_matcher."
+    error_message = "More than one log_pipeline category is left on the default routing_matcher (\"true\"). Only the first ever matches - give every category beyond one a real, distinguishing routing_matcher."
   }
 }
 
-check "log_bucket_assignment_custom_ids_must_be_unique" {
+check "log_pipeline_custom_ids_must_be_unique" {
   assert {
     # pipeline_custom_id is chosen per-category by whoever adds it, not derived
     # from the category key - nothing else stops two categories colliding on
     # the same id, which would otherwise only surface as an API error at apply
     # time against the live tenant.
     condition = (
-      length([for k, v in try(var.tenant_vars.log_bucket_assignment, {}) : v.pipeline_custom_id]) ==
-      length(distinct([for k, v in try(var.tenant_vars.log_bucket_assignment, {}) : v.pipeline_custom_id]))
+      length([for k, v in try(var.tenant_vars.log_pipeline, {}) : v.pipeline_custom_id]) ==
+      length(distinct([for k, v in try(var.tenant_vars.log_pipeline, {}) : v.pipeline_custom_id]))
     )
-    error_message = "Two or more log_bucket_assignment categories share the same pipeline_custom_id. Each category needs its own unique custom_id."
+    error_message = "Two or more log_pipeline categories share the same pipeline_custom_id. Each category needs its own unique custom_id."
   }
 }
 
@@ -393,20 +401,20 @@ module "dynatrace_log_routing" {
   # One computed route per category pipeline, ordered alphabetically by
   # category key (Terraform's for_each has no other inherent order) - each
   # entry's pipeline_id comes from that category's own module output, never
-  # hard-entered, so it can't drift from what dynatrace_log_bucket_assignment
+  # hard-entered, so it can't drift from what dynatrace_log_pipeline
   # actually creates. routes_before/routes_after from tenant_vars supply every
   # other entry that must exist in the live table, since this resource
   # replaces the whole table on apply.
   routes = concat(
     try(var.tenant_vars.log_routing.routes_before, []),
     [
-      for k in sort(keys(try(var.tenant_vars.log_bucket_assignment, {}))) : {
+      for k in sort(keys(try(var.tenant_vars.log_pipeline, {}))) : {
         description         = "Route to ${k} OpenPipeline logs pipeline"
         enabled             = true
-        matcher             = try(var.tenant_vars.log_bucket_assignment[k].routing_matcher, "true")
+        matcher             = try(var.tenant_vars.log_pipeline[k].routing_matcher, "true")
         pipeline_type       = "custom"
         builtin_pipeline_id = null
-        pipeline_id         = module.dynatrace_log_bucket_assignment[k].id
+        pipeline_id         = module.dynatrace_log_pipeline[k].id
       }
     ],
     try(var.tenant_vars.log_routing.routes_after, [])

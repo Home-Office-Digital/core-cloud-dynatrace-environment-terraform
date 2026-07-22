@@ -77,12 +77,12 @@ platform_buckets:
     retention: 35
 ```
 
-## Log Bucket Assignment
+## Log Pipeline
 
-Bucket-assignment rules for Dynatrace OpenPipeline logs pipelines can be managed by adding a `log_bucket_assignment` block to your tenant configuration. It's a **map keyed by category** — one pipeline per key — not a single object; `main.tf` calls the underlying module with `for_each` over this map. Rules within each category are evaluated in order (first match wins) — always end the list with a catch-all (`matcher: "true"`).
+Bucket-assignment rules for Dynatrace OpenPipeline logs pipelines can be managed by adding a `log_pipeline` block to your tenant configuration. It's a **map keyed by category** — one pipeline per key — not a single object; `main.tf` calls the underlying module with `for_each` over this map. Rules within each category are evaluated in order (first match wins) — always end the list with a catch-all (`matcher: "true"`).
 
 ```
-log_bucket_assignment:
+log_pipeline:
   platform:
     allow_manage_existing_pipeline: true
     pipeline_custom_id: "logs"
@@ -105,7 +105,7 @@ log_bucket_assignment:
 
 Use `isNotNull(...)` / `isNull(...)` for null checks in `matcher` (DQL functions), not a `!= null` comparison — that's the style used consistently across this module's own README, its tests, and every real tenant configuration.
 
-⚠️ The underlying resource owns each pipeline's entire definition, not just the rules declared here — see `dynatrace_log_bucket_assignment/README.md` for the required import step before first apply against a tenant that already has a live pipeline, and `dynatrace_log_routing/README.md` for how a pipeline actually receives traffic (creating it here alone does not route anything to it).
+⚠️ The underlying resource owns each pipeline's entire definition, not just the rules declared here — see `dynatrace_log_pipeline/README.md` for the required import step before first apply against a tenant that already has a live pipeline, and `dynatrace_log_routing/README.md` for how a pipeline actually receives traffic (creating it here alone does not route anything to it).
 
 `allow_manage_existing_pipeline` defaults to `false` and acts as a deliberate safety gate. Set it to `true` only after importing the target pipeline and reviewing a plan that confirms no unintended non-storage stage changes.
 
