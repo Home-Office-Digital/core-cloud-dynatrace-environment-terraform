@@ -334,6 +334,16 @@ module "dynatrace_log_bucket_assignment" {
   rules                          = var.tenant_vars.log_bucket_assignment.rules
 }
 
+check "log_routing_requires_log_bucket_assignment" {
+  assert {
+    condition = (
+      !contains(keys(var.tenant_vars), "log_routing") ||
+      contains(keys(var.tenant_vars), "log_bucket_assignment")
+    )
+    error_message = "tenant_vars.log_routing is set without tenant_vars.log_bucket_assignment. The dynatrace_log_routing module's own route entry is computed from module.dynatrace_log_bucket_assignment[0].id, so it can't be enabled on its own."
+  }
+}
+
 module "dynatrace_log_routing" {
   source = "./dynatrace_log_routing"
   count  = contains(keys(var.tenant_vars), "log_routing") ? 1 : 0
