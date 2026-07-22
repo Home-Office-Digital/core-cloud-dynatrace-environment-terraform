@@ -5,7 +5,7 @@ variable "allow_manage_existing_routing" {
 }
 
 variable "routes" {
-  description = "Ordered list of dynamic routing entries, highest priority first. Must reproduce every entry currently live in the tenant's routing table, including built-in ones (e.g. the Classic pipeline's Default route) - applying with a partial list deletes the missing entries."
+  description = "Ordered list of dynamic routing entries, highest priority first. Must reproduce every *manageable* entry currently live in the tenant's routing table - applying with a partial list deletes the missing entries. Does NOT include platform-injected fallbacks like the Classic pipeline's \"Default route\" - that has no routing_entry representation at all and must not be declared here. See the module README."
 
   type = list(object({
     description         = string
@@ -24,5 +24,15 @@ variable "routes" {
   validation {
     condition     = alltrue([for r in var.routes : contains(["builtin", "custom"], r.pipeline_type)])
     error_message = "pipeline_type must be one of: builtin, custom."
+  }
+
+  validation {
+    condition     = alltrue([for r in var.routes : r.pipeline_type != "custom" || r.pipeline_id != null])
+    error_message = "Every route with pipeline_type = \"custom\" must set pipeline_id."
+  }
+
+  validation {
+    condition     = alltrue([for r in var.routes : r.pipeline_type != "builtin" || r.builtin_pipeline_id != null])
+    error_message = "Every route with pipeline_type = \"builtin\" must set builtin_pipeline_id."
   }
 }
