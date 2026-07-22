@@ -319,19 +319,28 @@ module "dynatrace_platform_buckets" {
   display_name = try(each.value.display_name, null)
 }
 
+moved {
+  from = module.dynatrace_log_bucket_assignment[0]
+  to   = module.dynatrace_log_bucket_assignment["platform"]
+}
+
 module "dynatrace_log_bucket_assignment" {
   source = "./dynatrace_log_bucket_assignment"
-  count  = contains(keys(var.tenant_vars), "log_bucket_assignment") ? 1 : 0
 
-  pipeline_custom_id             = var.tenant_vars.log_bucket_assignment.pipeline_custom_id
-  pipeline_display_name          = var.tenant_vars.log_bucket_assignment.pipeline_display_name
-  group_role                     = try(var.tenant_vars.log_bucket_assignment.group_role, "basePipeline")
-  routing                        = try(var.tenant_vars.log_bucket_assignment.routing, null)
-  allow_manage_existing_pipeline = try(var.tenant_vars.log_bucket_assignment.allow_manage_existing_pipeline, false)
-  enforce_tier1_only_active      = try(var.tenant_vars.log_bucket_assignment.enforce_tier1_only_active, false)
-  tier1_rule_id_regex            = try(var.tenant_vars.log_bucket_assignment.tier1_rule_id_regex, "tier1")
-  security_context_rules         = try(var.tenant_vars.log_bucket_assignment.security_context_rules, [])
-  rules                          = var.tenant_vars.log_bucket_assignment.rules
+  # Keyed by category (e.g. "platform", "security") - one pipeline per key.
+  # Each category owns its own pipeline stages independently; the only thing
+  # shared across categories is the single tenant-wide routing table below.
+  for_each = try(var.tenant_vars.log_bucket_assignment, {})
+
+  pipeline_custom_id             = each.value.pipeline_custom_id
+  pipeline_display_name          = each.value.pipeline_display_name
+  group_role                     = try(each.value.group_role, "basePipeline")
+  routing                        = try(each.value.routing, null)
+  allow_manage_existing_pipeline = try(each.value.allow_manage_existing_pipeline, false)
+  enforce_tier1_only_active      = try(each.value.enforce_tier1_only_active, false)
+  tier1_rule_id_regex            = try(each.value.tier1_rule_id_regex, "tier1")
+  security_context_rules         = try(each.value.security_context_rules, [])
+  rules                          = each.value.rules
 }
 
 check "log_routing_requires_log_bucket_assignment" {
@@ -340,7 +349,24 @@ check "log_routing_requires_log_bucket_assignment" {
       !contains(keys(var.tenant_vars), "log_routing") ||
       contains(keys(var.tenant_vars), "log_bucket_assignment")
     )
-    error_message = "tenant_vars.log_routing is set without tenant_vars.log_bucket_assignment. The dynatrace_log_routing module's own route entry is computed from module.dynatrace_log_bucket_assignment[0].id, so it can't be enabled on its own."
+    error_message = "tenant_vars.log_routing is set without tenant_vars.log_bucket_assignment. dynatrace_log_routing's own route entries are computed from module.dynatrace_log_bucket_assignment's outputs, so it can't be enabled on its own."
+  }
+}
+
+check "log_bucket_assignment_categories_need_distinct_matchers" {
+  assert {
+    # Every category needs a real routing_matcher once there's more than one -
+    # two categories both left at the "true" catch-all default means only the
+    # first (alphabetically, since map keys drive apply order) ever fires and
+    # the rest are silently unreachable.
+    condition = (
+      length(keys(try(var.tenant_vars.log_bucket_assignment, {}))) <= 1 ||
+      length([
+        for k, v in try(var.tenant_vars.log_bucket_assignment, {}) : k
+        if trimspace(lower(try(v.routing_matcher, "true"))) == "true"
+      ]) <= 1
+    )
+    error_message = "More than one log_bucket_assignment category is left on the default routing_matcher (\"true\"). Only the first ever matches - give every category beyond one a real, distinguishing routing_matcher."
   }
 }
 
@@ -350,21 +376,25 @@ module "dynatrace_log_routing" {
 
   allow_manage_existing_routing = try(var.tenant_vars.log_routing.allow_manage_existing_routing, false)
 
-  # The route to our own `logs` pipeline is computed from its real resource id
-  # (not the custom_id "logs") rather than hand-entered, so it can't drift from
-  # what dynatrace_log_bucket_assignment actually creates. routes_before/routes_after
-  # from tenant_vars supply every other entry that must exist in the table,
-  # in their live priority order, since this resource replaces the whole table on apply.
+  # One computed route per category pipeline, ordered alphabetically by
+  # category key (Terraform's for_each has no other inherent order) - each
+  # entry's pipeline_id comes from that category's own module output, never
+  # hard-entered, so it can't drift from what dynatrace_log_bucket_assignment
+  # actually creates. routes_before/routes_after from tenant_vars supply every
+  # other entry that must exist in the live table, since this resource
+  # replaces the whole table on apply.
   routes = concat(
     try(var.tenant_vars.log_routing.routes_before, []),
-    [{
-      description         = "Route to OpenPipeline logs base pipeline"
-      enabled             = true
-      matcher             = "true"
-      pipeline_type       = "custom"
-      builtin_pipeline_id = null
-      pipeline_id         = module.dynatrace_log_bucket_assignment[0].id
-    }],
+    [
+      for k in sort(keys(try(var.tenant_vars.log_bucket_assignment, {}))) : {
+        description         = "Route to ${k} OpenPipeline logs pipeline"
+        enabled             = true
+        matcher             = try(var.tenant_vars.log_bucket_assignment[k].routing_matcher, "true")
+        pipeline_type       = "custom"
+        builtin_pipeline_id = null
+        pipeline_id         = module.dynatrace_log_bucket_assignment[k].id
+      }
+    ],
     try(var.tenant_vars.log_routing.routes_after, [])
   )
 }

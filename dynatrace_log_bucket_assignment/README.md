@@ -58,26 +58,34 @@ module "dynatrace_log_bucket_assignment" {
 }
 ```
 
-At the root module level this is driven by a `log_bucket_assignment` block in tenant configuration:
+At the root module level this is driven by a `log_bucket_assignment` map in
+tenant configuration, keyed by category (`main.tf` calls this module with
+`for_each`, one pipeline per key - see the root README / `dynatrace_log_routing`
+for how multiple categories route independently):
 
 ```yaml
 log_bucket_assignment:
-  allow_manage_existing_pipeline: true
-  pipeline_custom_id: "logs"
-  pipeline_display_name: "logs"
-  group_role: "memberPipeline"
-  routing: "routable"
-  enforce_tier1_only_active: true
-  tier1_rule_id_regex: "tier1"
-  rules:
-    - id: "processor_kubernetes_info_tier1"
-      description: "Kubernetes info logs to tier1"
-      matcher: 'isNotNull(k8s.namespace.name) and loglevel == "INFO"'
-      bucket_name: "kubernetes_info_tier1"
-    - id: "processor_catch_all"
-      description: "Anything unmatched"
-      matcher: "true"
-      bucket_name: "unknown"
+  platform:
+    allow_manage_existing_pipeline: true
+    pipeline_custom_id: "logs"
+    pipeline_display_name: "logs"
+    group_role: "memberPipeline"
+    routing: "routable"
+    # Consumed by dynatrace_log_routing, not this module - the DQL condition
+    # that decides whether a record enters this category's pipeline at all.
+    # Only safe to leave at "true" while this is the only category.
+    routing_matcher: "true"
+    enforce_tier1_only_active: true
+    tier1_rule_id_regex: "tier1"
+    rules:
+      - id: "processor_kubernetes_info_tier1"
+        description: "Kubernetes info logs to tier1"
+        matcher: 'isNotNull(k8s.namespace.name) and loglevel == "INFO"'
+        bucket_name: "kubernetes_info_tier1"
+      - id: "processor_catch_all"
+        description: "Anything unmatched"
+        matcher: "true"
+        bucket_name: "unknown"
 ```
 
 ## Inputs
