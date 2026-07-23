@@ -19,6 +19,8 @@ jobs:
         module:
           - aws_cwl_cwm
           - dynatrace_platform_buckets
+          - dynatrace_log_pipeline
+          - dynatrace_log_routing
     steps:
       - name: Clone the Repository
         uses: actions/checkout@v4
