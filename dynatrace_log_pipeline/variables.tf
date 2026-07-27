@@ -75,6 +75,21 @@ variable "security_context_rules" {
   default = []
 }
 
+variable "processing_fields_add_rules" {
+  description = "Ordered list of processing-stage fieldsAdd rules. Use this to enrich records (for example, derive loglevel from content) before storage bucket assignment."
+
+  type = list(object({
+    id          = string
+    description = optional(string, "")
+    enabled     = optional(bool, true)
+    matcher     = string
+    field_name  = string
+    field_value = string
+  }))
+
+  default = []
+}
+
 variable "enforce_tier1_only_active" {
   description = "When true, any rule whose id does not match tier1_rule_id_regex must be disabled. Useful for transition phases where only tier1 routing is active."
   type        = bool

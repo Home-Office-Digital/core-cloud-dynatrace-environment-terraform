@@ -2,11 +2,13 @@
 
 This module manages the **storage stage** of an existing Dynatrace OpenPipeline logs pipeline (`dynatrace_openpipeline_v2_logs_pipelines`), adding an ordered list of `bucketAssignment` processors that route logs into specific Grail buckets (e.g. the tiered `platform_buckets` created via the `dynatrace_platform_buckets` module) based on a DQL matcher.
 
+It can also optionally manage a **processing stage** with ordered `fieldsAdd` processors (`processing_fields_add_rules`) to enrich records before storage matching (for example, deriving `loglevel` from CloudWatch payload content when ingestion leaves it as `NONE`).
+
 Rules are evaluated in the order given — the first matching rule wins. Always include a catch-all entry last (`matcher = "true"`) so records that don't match any specific rule still land somewhere predictable, rather than silently falling through to whatever the pipeline's default/unassigned behaviour is.
 
 ## ⚠️ Read before first apply: this resource owns the whole pipeline, not just storage
 
-`dynatrace_openpipeline_v2_logs_pipelines` is a **per-pipeline** resource — one Terraform resource maps to one pipeline's *entire* definition (`processing`, `cost_allocation`, `metric_extraction`, `storage`, etc.), not just the part this module declares. This module only ever writes the `storage` stage.
+`dynatrace_openpipeline_v2_logs_pipelines` is a **per-pipeline** resource — one Terraform resource maps to one pipeline's *entire* definition (`processing`, `cost_allocation`, `metric_extraction`, `storage`, etc.), not just the part this module declares. This module writes `storage` and (optionally) `processing`/`security_context`.
 
 If the pipeline referenced by `pipeline_custom_id` already exists (which it almost always will — most tenants have a built-in base "logs" pipeline) and has live configuration in stages this module doesn't declare, applying this module for the first time without first importing that pipeline risks silently clearing those other stages.
 
@@ -102,6 +104,7 @@ log_pipeline:
 | `routing` | `notRoutable` or `routable`; left `null` so existing routing isn't overridden unless explicitly set | `string` | `null` | no |
 | `enforce_tier1_only_active` | If `true`, all non-tier1 rules must have `enabled = false`. The catch-all rule (`matcher = "true"`) is always exempt from this, regardless of its id, since it isn't tier-scoped. | `bool` | `false` | no |
 | `tier1_rule_id_regex` | Regex used to classify rule IDs as tier1 when enforcement is enabled | `string` | `"tier1"` | no |
+| `processing_fields_add_rules` | Ordered list of `{ id, description, enabled, matcher, field_name, field_value }` rules for processing-stage `fieldsAdd` processors. Applied before storage routing. | `list(object(...))` | `[]` | no |
 | `rules` | Ordered list of `{ id, description, enabled, matcher, bucket_name }` bucket-assignment rules. `description` defaults to `""`, `enabled` defaults to `true`. | `list(object(...))` | n/a | yes |
 
 ## Outputs
