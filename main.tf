@@ -348,6 +348,7 @@ module "dynatrace_log_pipeline" {
   enforce_tier1_only_active      = try(each.value.enforce_tier1_only_active, false)
   tier1_rule_id_regex            = try(each.value.tier1_rule_id_regex, "tier1")
   security_context_rules         = try(each.value.security_context_rules, [])
+  processing_fields_add_rules    = try(each.value.processing_fields_add_rules, [])
   rules                          = each.value.rules
 }
 
