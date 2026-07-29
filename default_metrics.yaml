@@ -1238,3 +1238,35 @@ Glue:
     - JobName
     - JobRunId
     - Type
+apigateway:
+  - name: Count
+    statistic: SUM
+    dimensions:
+      - "ApiName"
+      - "ApiName and Stage"
+      - "ApiName and Stage and Resource and Method"
+      - "Region"
+  - name: 4XXError
+    statistic: SUM
+    dimensions:
+      - "ApiName"
+      - "ApiName and Stage"
+      - "ApiName and Stage and Resource and Method"
+  - name: 5XXError
+    statistic: SUM
+    dimensions:
+      - "ApiName"
+      - "ApiName and Stage"
+      - "ApiName and Stage and Resource and Method"
+  - name: Latency
+    statistic: AVG_MIN_MAX
+    dimensions:
+      - "ApiName"
+      - "ApiName and Stage"
+      - "ApiName and Stage and Resource and Method"
+  - name: IntegrationLatency
+    statistic: AVG_MIN_MAX
+    dimensions:
+      - "ApiName"
+      - "ApiName and Stage"
+      - "ApiName and Stage and Resource and Method"
