@@ -1242,24 +1242,84 @@ apigateway:
   - name: Count
     statistic: SUM
     dimensions:
-      - "ApiName"
-  - name: Count
-    statistic: SUM
-    dimensions:
-      - "Region"
-  - name: 4XXError
-    statistic: SUM
-    dimensions:
-      - "ApiName"
+      - Region
   - name: 5XXError
     statistic: SUM
     dimensions:
-      - "ApiName"
+      - ApiName
   - name: Latency
     statistic: AVG_MIN_MAX
     dimensions:
-      - "ApiName"
+      - ApiName
   - name: IntegrationLatency
     statistic: AVG_MIN_MAX
     dimensions:
-      - "ApiName"
+      - ApiName
+  - name: Count
+    statistic: SUM
+    dimensions:
+      - ApiName
+  - name: 4XXError
+    statistic: SUM
+    dimensions:
+      - ApiName
+  - name: 4XXError
+    statistic: SUM
+    dimensions:
+      - ApiName
+      - Stage
+  - name: 4XXError
+    statistic: SUM
+    dimensions:
+      - ApiName
+      - Stage
+      - Resource
+      - Method
+  - name: 5XXError
+    statistic: SUM
+    dimensions:
+      - ApiName
+      - Stage
+  - name: 5XXError
+    statistic: SUM
+    dimensions:
+      - ApiName
+      - Stage
+      - Resource
+      - Method
+  - name: Count
+    statistic: SUM
+    dimensions:
+      - ApiName
+      - Stage
+  - name: Count
+    statistic: SUM
+    dimensions:
+      - ApiName
+      - Stage
+      - Resource
+      - Method
+  - name: IntegrationLatency
+    statistic: AVG_MIN_MAX
+    dimensions:
+      - ApiName
+      - Stage
+  - name: IntegrationLatency
+    statistic: AVG_MIN_MAX
+    dimensions:
+      - ApiName
+      - Stage
+      - Resource
+      - Method
+  - name: Latency
+    statistic: AVG_MIN_MAX
+    dimensions:
+      - ApiName
+      - Stage
+  - name: Latency
+    statistic: AVG_MIN_MAX
+    dimensions:
+      - ApiName
+      - Stage
+      - Resource
+      - Method
