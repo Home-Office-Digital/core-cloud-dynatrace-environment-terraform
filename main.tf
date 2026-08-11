@@ -327,7 +327,6 @@ module "dynatrace_default_launchpad" {
   launchpad_content   = var.tenant_vars.default_launchpad.content
   launchpad_custom_id = try(var.tenant_vars.default_launchpad.custom_id, null)
   launchpad_private   = try(var.tenant_vars.default_launchpad.private, null)
-  group_launchpads    = var.tenant_vars.default_launchpad.group_launchpads
 }
 
 # The count -> for_each moved block that used to live here is retired: state

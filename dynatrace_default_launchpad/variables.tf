@@ -24,17 +24,3 @@ variable "launchpad_private" {
   type        = bool
   default     = null
 }
-
-variable "group_launchpads" {
-  description = "User-group assignments that should receive this launchpad as their default launchpad."
-
-  type = list(object({
-    user_group_id = string
-    is_enabled    = optional(bool, true)
-  }))
-
-  validation {
-    condition     = length(var.group_launchpads) > 0
-    error_message = "group_launchpads must contain at least one user group assignment."
-  }
-}
