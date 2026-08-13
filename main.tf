@@ -319,6 +319,16 @@ module "dynatrace_platform_buckets" {
   display_name = try(each.value.display_name, null)
 }
 
+module "dynatrace_default_launchpad" {
+  source = "./dynatrace_default_launchpad"
+  count  = contains(keys(var.tenant_vars), "default_launchpad") ? 1 : 0
+
+  launchpad_name      = var.tenant_vars.default_launchpad.name
+  launchpad_content   = var.tenant_vars.default_launchpad.content
+  launchpad_custom_id = try(var.tenant_vars.default_launchpad.custom_id, null)
+  launchpad_private   = try(var.tenant_vars.default_launchpad.private, null)
+}
+
 # The count -> for_each moved block that used to live here is retired: state
 # has been on module.dynatrace_log_bucket_assignment["platform"] since that
 # migration applied, so a "from = ...[0]" block would now be permanently inert
