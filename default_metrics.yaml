@@ -12,6 +12,7 @@
 # The following values can be replaced by defining
 # 'optional_exclusive_services' within the individual
 # account section.
+ec2_builtin: []
 cloudfront:
   - name: Requests
     statistic: SUM
