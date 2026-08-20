@@ -18,8 +18,10 @@ If the pipeline referenced by `pipeline_custom_id` already exists (which it almo
 
 ## ⚠️ `group_role` / `routing` interaction, and renaming
 
-- The API rejects `routing = "routable"` on any pipeline with `group_role = "basePipeline"` — a base pipeline structurally cannot be a Dynamic Routing target. If this pipeline needs to receive traffic via a dynamic route (see `dynatrace_log_routing`), it must be `group_role = "memberPipeline"` with `routing = "routable"` set explicitly — the module's own default (`basePipeline`) will not work for that case.
-- `custom_id` is immutable. Changing `pipeline_custom_id` (e.g. a rename) forces Terraform to destroy the old pipeline and create a new one. This module sets `lifecycle { create_before_destroy = true }` specifically so the new pipeline exists (and anything referencing its `id`, like `dynatrace_log_routing`, can re-point to it) *before* the old one is destroyed — without that, the destroy fails outright if the old pipeline's id is still referenced elsewhere (e.g. the dynamic routing table), since the API refuses to delete an object something else still points to.
+- The API rejects `routing = "routable"` on any pipeline with `group_role = "basePipeline"` — a base pipeline structurally cannot be a Dynamic Routing target. That's not a limitation to work around: base pipelines are only ever reached by routing to a *member* pipeline that's part of the same pipeline group (see `dynatrace_log_pipeline_group`) - the group's composition is what pulls the base pipeline's stages in.
+- At the root module level, this module is now used exclusively for **base** pipelines (`group_role = "basePipeline"`, `routing = "notRoutable"`, wrapped by `dynatrace_log_pipeline_group`). A pipeline that needs to receive traffic directly via a dynamic route is a **member** pipeline, modeled by the separate `dynatrace_log_pipeline_member` module instead - not by setting `group_role = "memberPipeline"` here.
+- **Pipeline role is permanent.** Per Dynatrace's own docs: *"Converting roles - from member to base, or base to member - isn't supported."* If a pipeline already exists with the wrong role, changing `group_role` in this module's config will not convert it in place - it requires a new pipeline with a new `custom_id` and a real migration/cutover (see `dynatrace_log_pipeline_group`'s README).
+- `custom_id` is immutable. Changing `pipeline_custom_id` (e.g. a rename) forces Terraform to destroy the old pipeline and create a new one. This module sets `lifecycle { create_before_destroy = true }` specifically so the new pipeline exists (and anything referencing its `id`, like `dynatrace_log_pipeline_group`'s `base_pipelines`) *before* the old one is destroyed — without that, the destroy fails outright if the old pipeline's id is still referenced elsewhere, since the API refuses to delete an object something else still points to.
 
 ## Example usage
 
@@ -31,13 +33,14 @@ module "dynatrace_log_pipeline" {
   # reviewing a clean plan for non-storage stages.
   allow_manage_existing_pipeline = true
 
-  pipeline_custom_id    = "logs"
-  pipeline_display_name = "logs"
-  # memberPipeline + routable: required if this pipeline should receive traffic
-  # via a dynamic route (see dynatrace_log_routing). The default, basePipeline,
-  # cannot be made routable - the API rejects that combination.
-  group_role            = "memberPipeline"
-  routing               = "routable"
+  pipeline_custom_id    = "tiered_log_bucket_router_base"
+  pipeline_display_name = "Tiered Log Bucket Router (Base)"
+  # basePipeline + notRoutable: this pipeline is reached only by routing to a
+  # member pipeline that's part of the same dynatrace_log_pipeline_group -
+  # see that module's README for why a base pipeline can't be routed to
+  # directly.
+  group_role            = "basePipeline"
+  routing               = "notRoutable"
 
   # Transition toggle: only rules whose id matches this regex can stay enabled.
   enforce_tier1_only_active = true
@@ -60,26 +63,25 @@ module "dynatrace_log_pipeline" {
 }
 ```
 
-At the root module level this is driven by a `log_pipeline` map in
-tenant configuration, keyed by category (`main.tf` calls this module with
-`for_each`, one pipeline per key - see the root README / `dynatrace_log_routing`
-for how multiple categories route independently). `pipeline_custom_id` is
-chosen per-category, not derived from the key - the calling module's `check`
-block fails plan if two categories collide on the same `pipeline_custom_id`,
-rather than letting that surface as an API error against the live tenant.
+At the root module level this is driven by a `log_pipeline_base` **list**
+(order matters - see `dynatrace_log_pipeline_group`'s README) in tenant
+configuration. `main.tf` calls this module with `for_each` over that list
+keyed by `custom_id`, one base pipeline per entry - most tenants need only
+one. `pipeline_custom_id` is chosen per-entry, not derived from any key -
+the calling module's `check` block fails plan if any two `log_pipeline_base`
+or `log_pipeline_members` entries collide on the same `custom_id`, rather
+than letting that surface as an API error against the live tenant.
 
 ```yaml
-log_pipeline:
-  platform:
+log_pipeline_base:
+  - custom_id: tiered_log_bucket_router_base
+    display_name: "Tiered Log Bucket Router (Base)"
     allow_manage_existing_pipeline: true
-    pipeline_custom_id: "logs"
-    pipeline_display_name: "logs"
-    group_role: "memberPipeline"
-    routing: "routable"
-    # Consumed by dynatrace_log_routing, not this module - the DQL condition
-    # that decides whether a record enters this category's pipeline at all.
-    # Only safe to leave at "true" while this is the only category.
-    routing_matcher: "true"
+    group_role: basePipeline
+    routing: notRoutable
+    # Consumed by dynatrace_log_pipeline_group, not this module - which of
+    # this base pipeline's stages are mandated onto every member pipeline.
+    mandate_stages: [processing, securityContext, storage]
     enforce_tier1_only_active: true
     tier1_rule_id_regex: "tier1"
     rules:
@@ -92,6 +94,10 @@ log_pipeline:
         matcher: "true"
         bucket_name: "unknown"
 ```
+
+A pipeline that should receive traffic directly (a routable member) is a
+different module - see `dynatrace_log_pipeline_member` and
+`dynatrace_log_pipeline_group`.
 
 ## Inputs
 
