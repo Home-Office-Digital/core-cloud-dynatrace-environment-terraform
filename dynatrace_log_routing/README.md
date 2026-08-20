@@ -85,18 +85,31 @@ module "dynatrace_log_routing" {
 ```
 
 At the root module level this is driven by a `log_routing` block in tenant
-configuration. The calling module (`main.tf`) builds `routes` in three
-tiers, in this order:
+configuration. The calling module (`main.tf`) builds `routes` as:
 
-1. Any explicitly named `log_pipeline_members` entries (one route per key,
-   sorted alphabetically) - only relevant once team-specific member
-   pipelines with real, distinguishing matchers exist. Empty by default.
-2. `dynatrace_log_pipeline_group`'s mandatory `default_member_pipeline_id`,
-   always last among these, with a `"true"` catch-all matcher - the
-   guaranteed fallback that catches anything the tier-1 entries didn't.
-3. `routes_before` / `routes_after` from tenant config, for entries that
-   must exist in the live table but aren't managed by either of the above
-   (e.g. routes to pipelines this repo doesn't own).
+`routes_before` (tenant config) → named `log_pipeline_members` entries (one
+route per key, sorted alphabetically) → `dynatrace_log_pipeline_group`'s
+`default_member_pipeline_id` → `routes_after` (tenant config).
+
+`routes_before`/`routes_after` are named for exactly this - they splice in
+entries *before* and *after* everything this module auto-generates, for
+routes that must exist in the live table but aren't managed by either of
+the generated tiers (e.g. routes to pipelines this repo doesn't own). A
+broad/catch-all matcher in `routes_before` will shadow every generated
+route below it, including the `default_member` fallback - that's the
+literal meaning of "before," not a stage to add unscoped matchers to
+casually.
+
+**`default_member`'s matcher is NOT a guaranteed `"true"` catch-all.** It
+fails closed to `"false"` (inert - matches nothing) if
+`log_pipeline_group.default_member.routing_matcher` isn't set explicitly in
+tenant config. This is deliberate: a `"true"` default here previously wiped
+out every other pipeline's route in one apply (this resource replaces the
+whole table on every apply - see the warning above), funneling all of a
+tenant's traffic onto one entry. Enabling `log_pipeline_group` and
+`log_routing` does **not**, on its own, guarantee any log reaches the base
+pipeline - `routing_matcher` must be set deliberately once it's actually
+known what should route there.
 
 ```yaml
 log_routing:
@@ -115,14 +128,15 @@ inert placeholder route cluttering the table for a pipeline that isn't
 ready to receive traffic yet.
 
 **Every ROUTED named `log_pipeline_members` entry (`create_route: true`)
+that's left on the (unrelated) `"true"` string some other member also uses
 needs its own real `routing_matcher`** (see `dynatrace_log_pipeline_member`'s
 README) - the calling module's `check` block fails plan if more than one
-routed member is left on the default `"true"` catch-all, since routes are
+routed member's matcher is literally `"true"`, since routes are
 first-match-wins and only the first would ever fire. Members with
 `create_route` not set to `true` are excluded from that check entirely,
-since they don't produce a route to be ambiguous about. The pipeline
-group's own `default_member` catch-all is separately, deliberately exempt
-too - it's supposed to be `"true"`, that's what makes it the fallback.
+since they don't produce a route to be ambiguous about. `default_member` is
+separately exempt from this check - it's evaluated on its own, not compared
+against named members - but note it is *not* implicitly `"true"`; see above.
 
 ```yaml
 log_pipeline_members:

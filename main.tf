@@ -446,7 +446,7 @@ check "log_routing_requires_log_pipeline_group" {
 
 check "log_pipeline_members_need_distinct_matchers" {
   assert {
-    # Every ROUTED member needs a real routing_matcher once there's more than one, else only the alphabetically-first "true" catch-all ever fires; non-routed members (create_route != true) are excluded as they produce no route at all.
+    # Default here MUST match the route builder's own default ("false", not "true" - see the routes computation below) or this check both false-positives (flagging omitted matchers as ambiguous "true" catch-alls they aren't) and mismatches its own error message. This only catches members that explicitly share matcher "true" - two routed members both left on the omitted-matcher default are inert, not ambiguous, and correctly don't trip this.
     condition = (
       length([
         for member_key, member in try(var.tenant_vars.log_pipeline_members, {}) : member_key
@@ -454,10 +454,10 @@ check "log_pipeline_members_need_distinct_matchers" {
       ]) <= 1 ||
       length([
         for member_key, member in try(var.tenant_vars.log_pipeline_members, {}) : member_key
-        if try(member.create_route, false) && trimspace(lower(try(member.routing_matcher, "true"))) == "true"
+        if try(member.create_route, false) && trimspace(lower(try(member.routing_matcher, "false"))) == "true"
       ]) <= 1
     )
-    error_message = "More than one routed log_pipeline_members entry is left on the default routing_matcher (\"true\"). Only the first ever matches - give every routed member beyond one a real, distinguishing routing_matcher."
+    error_message = "More than one routed log_pipeline_members entry has matcher \"true\". Only the first ever matches - give every routed member beyond one a real, distinguishing routing_matcher."
   }
 }
 
