@@ -9,7 +9,7 @@ variable "display_name" {
 }
 
 variable "metric_extraction_rules" {
-  description = "Ordered list of metric-extraction processors. This is the ONLY stage a member pipeline may configure - a governance boundary enforced by the pipeline group's member_stages restriction (see dynatrace_log_pipeline_group), not just by this module leaving other stages unset."
+  description = "Ordered list of metric-extraction processors - the only stage this module exposes (governance is enforced by the pipeline group's member_stages, see dynatrace_log_pipeline_group)."
 
   type = list(object({
     id          = string

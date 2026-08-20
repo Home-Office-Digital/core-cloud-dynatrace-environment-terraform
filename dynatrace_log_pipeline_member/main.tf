@@ -2,8 +2,7 @@ resource "dynatrace_openpipeline_v2_logs_pipelines" "member" {
   custom_id    = var.custom_id
   display_name = var.display_name
 
-  # Hardcoded, not exposed as inputs: a member pipeline is only ever a
-  # routable member of a pipeline group in this design - see module README.
+  # Hardcoded, not exposed as inputs - see module README.
   group_role = "memberPipeline"
   routing    = "routable"
 

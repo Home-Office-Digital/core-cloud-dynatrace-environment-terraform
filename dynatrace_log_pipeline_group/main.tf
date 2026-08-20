@@ -1,3 +1,4 @@
+# Cross-variable checks live here, not as inline validation blocks, since a variable's own validation can only reference itself pre-1.9 (this module targets >= 1.5.0, see root versions.tf).
 check "create_default_member_requires_a_reachable_member" {
   assert {
     condition     = var.create_default_member || length(var.member_pipeline_ids) > 0
@@ -19,12 +20,7 @@ check "default_member_display_name_required_when_created" {
   }
 }
 
-# Optional entry point: a base pipeline can never be routed to directly (see
-# README), so the group would be unreachable if it ended up with zero
-# members. Set create_default_member = false once real, explicitly-declared
-# member pipelines exist via member_pipeline_ids and this internal one is no
-# longer needed - the checks above make sure that's not done leaving the
-# group with no members at all.
+# Optional entry point - a base pipeline can never be routed to directly (see README); checks above ensure the group isn't left with zero members.
 module "default_member" {
   count  = var.create_default_member ? 1 : 0
   source = "../dynatrace_log_pipeline_member"
@@ -38,11 +34,7 @@ resource "dynatrace_openpipeline_v2_logs_pipelinegroups" "group" {
   display_name = var.display_name
 
   composition {
-    # Declaration order across these dynamic blocks IS the composition
-    # order Dynatrace uses - only one of the two placeholder blocks below
-    # ever actually emits a block (for_each is a 0-or-1-element list), so
-    # member_placeholder_position controls whether the placeholder ends up
-    # before or after the base pipelines list.
+    # Declaration order here IS the composition order - member_placeholder_position picks which placeholder block below actually emits.
     dynamic "pipeline_group_composition" {
       for_each = var.member_placeholder_position == "before" ? [1] : []
       content {

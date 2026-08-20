@@ -4,7 +4,7 @@ variable "display_name" {
 }
 
 variable "member_placeholder_position" {
-  description = "Where the member pipeline placeholder sits relative to base_pipelines in the composition order: \"before\" (member runs first, then base pipelines) or \"after\" (base pipelines run first, then the routed member - the default). Only matters for stage types configured on BOTH a base pipeline and a member pipeline (e.g. \"processing\", if member_stages allows it) - that's the only case where which one runs first is observable."
+  description = "Where the member placeholder sits relative to base_pipelines: \"before\" or \"after\" (default) - only observable for stages configured on both sides."
   type        = string
   default     = "after"
 
@@ -15,7 +15,7 @@ variable "member_placeholder_position" {
 }
 
 variable "base_pipelines" {
-  description = "Ordered list of base pipelines wrapped around the member pipeline placeholder. Order matters - entries run in list order, all on the same side of the placeholder (see member_placeholder_position for which side). mandate_stages_type controls how much of each base pipeline's own config actually runs as part of this composition: \"includeAll\" (recommended for a base - unrestricted, every stage the pipeline has configured runs) or \"include\"/\"exclude\" to narrow it to specific stages via mandate_stages."
+  description = "Ordered list of base pipelines wrapped around the member placeholder (see member_placeholder_position); mandate_stages_type/mandate_stages control which of each base's stages actually run (\"includeAll\" recommended for a base)."
 
   type = list(object({
     pipeline_id         = string
@@ -31,15 +31,14 @@ variable "base_pipelines" {
   }
 
   validation {
-    # mandate_stages is meaningless (and ignored) when mandate_stages_type is
-    # "includeAll" - only require it to be non-empty for include/exclude.
+    # mandate_stages is ignored when mandate_stages_type is "includeAll".
     condition     = alltrue([for base_pipeline in var.base_pipelines : base_pipeline.mandate_stages_type == "includeAll" || length(base_pipeline.mandate_stages) > 0])
     error_message = "Every base_pipelines entry must set mandate_stages, unless mandate_stages_type is \"includeAll\"."
   }
 }
 
 variable "member_stages_type" {
-  description = "Restriction mode for stages member pipelines are allowed to run. \"include\" (recommended) allow-lists specific stages - everything else is locked out regardless of what a member pipeline configures. \"exclude\" deny-lists specific stages. \"includeAll\" leaves every stage available to members (no restriction - defeats the governance purpose of a group, use deliberately)."
+  description = "Restriction mode for stages members may run: \"include\" (recommended, allow-list), \"exclude\" (deny-list), or \"includeAll\" (no restriction - defeats the governance purpose, use deliberately)."
   type        = string
   default     = "include"
 
@@ -50,7 +49,7 @@ variable "member_stages_type" {
 }
 
 variable "member_stages_include" {
-  description = "Stages member pipelines may run, when member_stages_type = \"include\". Any stage not listed here cannot be executed by a member pipeline, no matter what that pipeline's own config contains."
+  description = "Stages members may run, when member_stages_type = \"include\" - anything else is locked out regardless of a member's own config."
   type        = list(string)
   default     = []
 }
@@ -62,31 +61,31 @@ variable "member_stages_exclude" {
 }
 
 variable "member_pipeline_ids" {
-  description = "IDs of member pipelines wrapped by this group, in addition to the internally-created default_member (if create_default_member is true). Compute this from module.dynatrace_log_pipeline_member[*].id outputs rather than hard-coding. Must be non-empty if create_default_member is false - the group needs at least one member from somewhere to be reachable at all (a base pipeline can never be routed to directly)."
+  description = "IDs of member pipelines wrapped by this group in addition to default_member; must be non-empty if create_default_member is false, since the group needs at least one member to be reachable."
   type        = list(string)
   default     = []
 }
 
 variable "create_default_member" {
-  description = "Whether this module creates its own internal catch-all member pipeline (default_member_*). Useful when nothing else guarantees the group has at least one member yet. Set false once real, explicitly-declared member pipelines exist (via member_pipeline_ids) and the internal one is no longer needed. Cross-checked against member_pipeline_ids and the default_member_* variables via check blocks in main.tf, not here - validation blocks can only reference the variable they're declared on unless the module requires Terraform >= 1.9, and this one only requires >= 1.5.0 (see root versions.tf)."
+  description = "Whether this module creates its own internal catch-all member pipeline (default_member_*) - set false once real member_pipeline_ids exist and it's no longer needed (see main.tf check blocks)."
   type        = bool
   default     = true
 }
 
 variable "default_member_custom_id" {
-  description = "custom_id for the internally-created catch-all member pipeline. Required only when create_default_member is true - see the check block in main.tf."
+  description = "custom_id for the internally-created catch-all member pipeline; required only when create_default_member is true."
   type        = string
   default     = null
 }
 
 variable "default_member_display_name" {
-  description = "Display name for the internally-created default member pipeline. Required only when create_default_member is true - see the check block in main.tf."
+  description = "Display name for the internally-created default member pipeline; required only when create_default_member is true."
   type        = string
   default     = null
 }
 
 variable "default_member_metric_extraction_rules" {
-  description = "Optional metric-extraction rules for the default member pipeline. Left empty by default - this pipeline exists purely as the mandatory entry point into the group's base pipeline(s), not for self-service metrics. Add rules here, or declare additional named member pipelines via member_pipeline_ids, once that's actually needed."
+  description = "Optional metric-extraction rules for the default member pipeline; empty by default since it exists purely as the entry point, not for self-service metrics."
 
   type = list(object({
     id          = string

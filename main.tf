@@ -329,62 +329,30 @@ module "dynatrace_default_launchpad" {
   launchpad_private   = try(var.tenant_vars.default_launchpad.private, null)
 }
 
-# The count -> for_each moved block that used to live here is retired: state
-# has been on module.dynatrace_log_bucket_assignment["platform"] since that
-# migration applied, so a "from = ...[0]" block would now be permanently inert
-# everywhere. This one replaces it for the module's rename to dynatrace_log_pipeline
-# (dynatrace_log_bucket_assignment was a misleading name - it owns the whole
-# pipeline resource, not just its bucket-assignment rules). from must stay as
-# the OLD module name here - it's the address actually in state right now,
-# not something to rename along with everything else.
+# Retired module rename (dynatrace_log_bucket_assignment owned more than just bucket-assignment rules) - state address stays module.dynatrace_log_pipeline, from must stay the old name.
 moved {
   from = module.dynatrace_log_bucket_assignment
   to   = module.dynatrace_log_pipeline
 }
 
-# dynatrace_log_pipeline's for_each key scheme changed from category name
-# ("platform", from the old tenant_vars.log_pipeline.platform map) to
-# custom_id (log_pipeline_base_by_id/log_pipeline_legacy_by_id below), as
-# part of demoting the tenant's existing pipeline to log_pipeline_legacy.
-# Without this, Terraform can't tell that's the same live pipeline object -
-# it plans to destroy module.dynatrace_log_pipeline["platform"] and create
-# module.dynatrace_log_pipeline["tiered_log_bucket_router"], which is unsafe
-# against a real, currently-live, immutable-custom_id pipeline. This applies
-# only to the legacy entry - the new base pipeline (custom_id
-# "tiered_log_bucket_router_base") never existed under any prior address, so
-# it genuinely is a create, no moved block needed for it.
+# for_each key changed from category name ("platform") to custom_id when the tenant's existing pipeline was demoted to log_pipeline_legacy - without this Terraform would destroy+recreate a real, live, immutable-custom_id pipeline.
 moved {
   from = module.dynatrace_log_pipeline["platform"]
   to   = module.dynatrace_log_pipeline["tiered_log_bucket_router"]
 }
 
 locals {
-  # log_pipeline_base is an ordered LIST (not a map) because composition
-  # order matters (which base pipeline's stages run before/after another)
-  # and for_each over a map has no guaranteed order. Keyed here by custom_id
-  # purely so it can drive for_each - list order is what the pipeline group
-  # module actually relies on for its own composition list.
+  # log_pipeline_base is an ordered LIST, not a map (composition order matters, for_each over a map has none) - keyed by custom_id here purely to drive for_each.
   log_pipeline_base_by_id = {
     for base_pipeline in try(var.tenant_vars.log_pipeline_base, []) : base_pipeline.custom_id => base_pipeline
   }
 
-  # log_pipeline_legacy: pipelines kept declared (so Terraform does NOT
-  # destroy them) but deliberately left out of both dynatrace_log_routing and
-  # dynatrace_log_pipeline_group's composition, so they stop receiving
-  # traffic without being deleted yet. This is the two-phase cutover: phase 1
-  # applies the new base/member/group and re-points routing at the new
-  # member, leaving the legacy pipeline inert but present; phase 2, once logs
-  # are confirmed landing in the right buckets, is a separate, deliberate
-  # config change that removes the entry here so Terraform destroys it. See
-  # dynatrace_log_pipeline_group's README for the full sequence.
+  # log_pipeline_legacy: kept declared (not destroyed) but left out of routing/group composition, so it goes inert without being deleted - phase 1 of the two-phase cutover; phase 2 removes the entry once verified (see dynatrace_log_pipeline_group's README).
   log_pipeline_legacy_by_id = {
     for legacy_pipeline in try(var.tenant_vars.log_pipeline_legacy, []) : legacy_pipeline.custom_id => legacy_pipeline
   }
 
-  # Every pipeline in a tenant (base, legacy, default member, or named
-  # member) shares one custom_id namespace at the API level - collect all of
-  # them so the uniqueness check below catches cross-collisions, not just
-  # within one list/map.
+  # Every pipeline (base, legacy, default member, or named member) shares one custom_id namespace - collected here so the uniqueness check below catches cross-collisions.
   all_log_pipeline_custom_ids = concat(
     [for base_pipeline in try(var.tenant_vars.log_pipeline_base, []) : base_pipeline.custom_id],
     [for legacy_pipeline in try(var.tenant_vars.log_pipeline_legacy, []) : legacy_pipeline.custom_id],
@@ -399,17 +367,7 @@ locals {
 module "dynatrace_log_pipeline" {
   source = "./dynatrace_log_pipeline"
 
-  # Base pipelines (mandated onto the group's members) AND legacy pipelines
-  # pending retirement (see locals above) both use this same generic module -
-  # only log_pipeline_base entries feed dynatrace_log_pipeline_group's
-  # composition below, so a legacy entry here is never wrapped into the new
-  # group's guarantees, just kept alive in state until deliberately removed.
-  # Per Dynatrace's own docs a base pipeline that's part of a group can't be
-  # routed to directly, so routing defaults to notRoutable here (was
-  # null/ambiguous back when this map could hold any group_role) - legacy
-  # entries override this back to their own original "routable" in tenant
-  # config, since routing simply omitting their route entry is what makes
-  # them inert, not the routing flag itself.
+  # Base pipelines AND legacy pipelines pending retirement both use this generic module - only log_pipeline_base feeds the group's composition, so legacy entries stay unwrapped, just kept alive in state.
   for_each = merge(local.log_pipeline_base_by_id, local.log_pipeline_legacy_by_id)
 
   pipeline_custom_id             = each.value.custom_id
@@ -427,11 +385,7 @@ module "dynatrace_log_pipeline" {
 module "dynatrace_log_pipeline_member" {
   source = "./dynatrace_log_pipeline_member"
 
-  # Additional, explicitly named member pipelines - NOT required for logs to
-  # flow through the base pipeline by default; dynatrace_log_pipeline_group
-  # creates its own mandatory catch-all member internally for that (see that
-  # module's README). This map only needs entries once team-specific
-  # self-service metric-extraction pipelines are actually wanted, one per key.
+  # Additional named member pipelines - not required for default routing (dynatrace_log_pipeline_group's default_member covers that); only needed for team-specific self-service metrics, one per key.
   for_each = try(var.tenant_vars.log_pipeline_members, {})
 
   custom_id               = each.value.custom_id
@@ -447,11 +401,7 @@ module "dynatrace_log_pipeline_group" {
 
   member_placeholder_position = try(var.tenant_vars.log_pipeline_group.member_placeholder_position, "after")
 
-  # Ordered per log_pipeline_base's list order - see locals above for why
-  # that's a list, not a map. mandate_stages_type defaults to "include" (the
-  # group module's own default) if omitted - set it to "includeAll" in
-  # tenant config for a base pipeline that should be fully unrestricted
-  # (every stage it has configured runs, nothing filtered out).
+  # Ordered per log_pipeline_base's list order (see locals above); mandate_stages_type defaults to "include" - set "includeAll" in tenant config for a fully unrestricted base pipeline.
   base_pipelines = [
     for base_pipeline in try(var.tenant_vars.log_pipeline_base, []) : {
       pipeline_id         = module.dynatrace_log_pipeline[base_pipeline.custom_id].id
@@ -464,18 +414,13 @@ module "dynatrace_log_pipeline_group" {
   member_stages_include = try(var.tenant_vars.log_pipeline_group.member_stages.include, [])
   member_stages_exclude = try(var.tenant_vars.log_pipeline_group.member_stages.exclude, [])
 
-  # The module creates this catch-all member internally ONLY when
-  # tenant_vars.log_pipeline_group.default_member is set - it exists to
-  # guarantee the group is reachable when nothing else does. Once real,
-  # explicitly-declared log_pipeline_members entries exist (below), the
-  # default_member block can be dropped from tenant config entirely.
+  # Created only when tenant_vars.log_pipeline_group.default_member is set - guarantees the group stays reachable; drop the block once real log_pipeline_members entries exist instead.
   create_default_member                  = contains(keys(var.tenant_vars.log_pipeline_group), "default_member")
   default_member_custom_id               = try(var.tenant_vars.log_pipeline_group.default_member.custom_id, null)
   default_member_display_name            = try(var.tenant_vars.log_pipeline_group.default_member.display_name, null)
   default_member_metric_extraction_rules = try(var.tenant_vars.log_pipeline_group.default_member.metric_extraction_rules, [])
 
-  # Named members - adding a log_pipeline_members entry automatically joins
-  # the group alongside the default member, if any.
+  # Named members - adding a log_pipeline_members entry automatically joins the group alongside the default member, if any.
   member_pipeline_ids = [for member_key, member_pipeline in module.dynatrace_log_pipeline_member : member_pipeline.id]
 }
 
@@ -501,13 +446,7 @@ check "log_routing_requires_log_pipeline_group" {
 
 check "log_pipeline_members_need_distinct_matchers" {
   assert {
-    # Every ROUTED member needs a real routing_matcher once there's more than
-    # one - two members both left at the "true" catch-all default means only
-    # the first (alphabetically, since map keys drive apply order) ever fires
-    # and the rest are silently unreachable. Members with create_route not
-    # set to true don't produce a route at all (see the routes computation
-    # below), so they're excluded here - counting a non-routed member's
-    # matcher would be a false positive, not a real ambiguity.
+    # Every ROUTED member needs a real routing_matcher once there's more than one, else only the alphabetically-first "true" catch-all ever fires; non-routed members (create_route != true) are excluded as they produce no route at all.
     condition = (
       length([
         for member_key, member in try(var.tenant_vars.log_pipeline_members, {}) : member_key
@@ -524,10 +463,7 @@ check "log_pipeline_members_need_distinct_matchers" {
 
 check "log_pipeline_ids_must_be_unique" {
   assert {
-    # custom_id is chosen per-entry by whoever adds it, not derived from the
-    # map/list key - nothing else stops two base or member entries (or a base
-    # and a member) colliding on the same id, which would otherwise only
-    # surface as an API error at apply time against the live tenant.
+    # custom_id is chosen per-entry, not derived from the map/list key - nothing else stops a collision, which would otherwise only surface as an API error at apply time.
     condition = (
       length(local.all_log_pipeline_custom_ids) ==
       length(distinct(local.all_log_pipeline_custom_ids))
@@ -540,58 +476,21 @@ module "dynatrace_log_routing" {
   source = "./dynatrace_log_routing"
   count  = contains(keys(var.tenant_vars), "log_routing") ? 1 : 0
 
-  # dynatrace_log_pipeline_group's default_member_pipeline_id output points
-  # straight at its internal module.default_member.id, bypassing the
-  # dynatrace_openpipeline_v2_logs_pipelinegroups.group resource itself - so
-  # the implicit reference graph alone does NOT guarantee the group
-  # assignment exists before routing starts sending traffic to that member.
-  # Without this, Terraform could apply the routing update and the group
-  # resource in either order (or in parallel); if routing wins the race, any
-  # record hitting that window reaches the member pipeline before it's
-  # actually part of the group - meaning none of the base pipeline's
-  # mandated stages (bucket assignment, security context) apply to it yet.
+  # default_member_pipeline_id bypasses the actual group resource in its reference chain, so the implicit graph alone doesn't guarantee group assignment happens before routing - without this, a record could reach the member before it's part of the group and miss the base pipeline's mandated stages.
   depends_on = [module.dynatrace_log_pipeline_group]
 
   allow_manage_existing_routing = try(var.tenant_vars.log_routing.allow_manage_existing_routing, false)
 
-  # Routes target member pipelines only - a base pipeline that's part of a
-  # pipeline group can't be routed to directly (see
-  # dynatrace_log_pipeline_group's README); reaching a member that's in the
-  # group is what pulls the base pipeline's mandated stages in.
-  #
-  # Order, deliberately not alphabetical: any explicitly named
-  # log_pipeline_members entries (specific matchers) are evaluated first,
-  # THEN the pipeline group's default_member entry last, as the intended
-  # eventual fallback once its own matcher is deliberately scoped.
-  #
-  # ⚠️ default_member's matcher is NOT hardcoded to "true" and does NOT
-  # silently default to it either - it defaults to "false" (matches nothing)
-  # if tenant config doesn't set log_pipeline_group.default_member.routing_matcher
-  # explicitly. This is a fail-closed default on purpose: this resource
-  # REPLACES the tenant's entire routing table on every apply (see
-  # dynatrace_log_routing's README), and a "true" catch-all here once
-  # actually happened to wipe out every other pipeline's route in one apply,
-  # funneling all of that tenant's traffic - including pipelines this repo
-  # doesn't own - onto this one entry. Defaulting to "false" means an
-  # accidentally-omitted matcher makes this route inert (no traffic) instead
-  # of silently swallowing everything. Set the real matcher deliberately in
-  # tenant config once it's actually known what should route here.
+  # Routes target member pipelines only (base pipelines in a group can't be routed to directly - see dynatrace_log_pipeline_group's README); named log_pipeline_members entries are ordered before the default_member fallback, deliberately not alphabetically.
+  # ⚠️ default_member's matcher fails closed to "false" (not "true") if routing_matcher isn't set explicitly - this resource replaces the WHOLE routing table on every apply, and a "true" default here once wiped out every other pipeline's route in one apply. Set the real matcher deliberately once known.
   routes = concat(
     try(var.tenant_vars.log_routing.routes_before, []),
     [
-      # create_route is opt-in (default false): a member pipeline can exist
-      # on its own, with no route pointing at it at all - that's a normal,
-      # valid state on the platform, not something that needs an inert
-      # placeholder route to compensate for. Set create_route = true only
-      # once a member is actually meant to be reachable (whether its
-      # routing_matcher is real yet or still the fail-closed "false"
-      # placeholder is a separate, later decision).
+      # create_route is opt-in (default false) - a member can exist with no route at all, a normal valid state; set true only once it's meant to be reachable.
       for member_key in sort(keys(try(var.tenant_vars.log_pipeline_members, {}))) : {
         description = "Route to ${member_key} OpenPipeline logs member pipeline"
         enabled     = true
-        # Same fail-closed default as default_member below, for the same
-        # reason: this table gets fully replaced on every apply, so an
-        # omitted matcher should mean "inert", not "catches everything".
+        # Fail-closed default, same reasoning as default_member below - an omitted matcher means "inert", not "catches everything".
         matcher             = try(var.tenant_vars.log_pipeline_members[member_key].routing_matcher, "false")
         pipeline_type       = "custom"
         builtin_pipeline_id = null
@@ -600,9 +499,7 @@ module "dynatrace_log_routing" {
       if try(var.tenant_vars.log_pipeline_members[member_key].create_route, false)
     ],
     [
-      # Only generated when log_pipeline_group.default_member is actually
-      # set - dynatrace_log_pipeline_group's default_member_pipeline_id
-      # output is null otherwise, and a route can't have a null pipeline_id.
+      # Only generated when log_pipeline_group.default_member is set - its output is null otherwise, and a route can't have a null pipeline_id.
       for _ in(
         contains(keys(var.tenant_vars), "log_pipeline_group") &&
         contains(keys(var.tenant_vars.log_pipeline_group), "default_member")
