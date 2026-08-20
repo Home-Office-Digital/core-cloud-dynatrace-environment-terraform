@@ -69,24 +69,47 @@ module "dynatrace_log_routing" {
 
   routes = [
     {
-      description   = "Route to platform OpenPipeline logs pipeline"
+      description   = "Route to default OpenPipeline logs entry (base pipeline via its mandatory default member)"
       matcher       = "true"
       pipeline_type = "custom"
-      # Computed from another module's real output, not hard-coded:
-      pipeline_id   = module.dynatrace_log_pipeline["platform"].id
+      # Computed from another module's real output, not hard-coded. Note this
+      # points at dynatrace_log_pipeline_group's mandatory default_member
+      # pipeline, never a base one directly - see that module's README for
+      # why a base pipeline that's part of a group can't be a routing target
+      # at all. This is what makes "logs use the base pipeline by default"
+      # true with zero extra config - no separate member pipeline to declare.
+      pipeline_id   = module.dynatrace_log_pipeline_group[0].default_member_pipeline_id
     },
   ]
 }
 ```
 
 At the root module level this is driven by a `log_routing` block in tenant
-configuration. `dynatrace_log_pipeline` is called with `for_each`,
-keyed by category (e.g. `platform`, `security`) - the calling module
-(`main.tf`) injects one route per category automatically, computed from that
-category's own `module.dynatrace_log_pipeline[<key>].id`, ordered
-alphabetically by key. `routes_before` / `routes_after` in tenant config only
-need to supply *other* entries that must exist in the live table (e.g. routes
-to pipelines this repo doesn't manage):
+configuration. The calling module (`main.tf`) builds `routes` as:
+
+`routes_before` (tenant config) → named `log_pipeline_members` entries (one
+route per key, sorted alphabetically) → `dynatrace_log_pipeline_group`'s
+`default_member_pipeline_id` → `routes_after` (tenant config).
+
+`routes_before`/`routes_after` are named for exactly this - they splice in
+entries *before* and *after* everything this module auto-generates, for
+routes that must exist in the live table but aren't managed by either of
+the generated tiers (e.g. routes to pipelines this repo doesn't own). A
+broad/catch-all matcher in `routes_before` will shadow every generated
+route below it, including the `default_member` fallback - that's the
+literal meaning of "before," not a stage to add unscoped matchers to
+casually.
+
+**`default_member`'s matcher is NOT a guaranteed `"true"` catch-all.** It
+fails closed to `"false"` (inert - matches nothing) if
+`log_pipeline_group.default_member.routing_matcher` isn't set explicitly in
+tenant config. This is deliberate: a `"true"` default here previously wiped
+out every other pipeline's route in one apply (this resource replaces the
+whole table on every apply - see the warning above), funneling all of a
+tenant's traffic onto one entry. Enabling `log_pipeline_group` and
+`log_routing` does **not**, on its own, guarantee any log reaches the base
+pipeline - `routing_matcher` must be set deliberately once it's actually
+known what should route there.
 
 ```yaml
 log_routing:
@@ -95,17 +118,40 @@ log_routing:
   routes_after: []
 ```
 
-**Every category needs its own real `routing_matcher`** (set per-category,
-alongside that category's `log_pipeline` entry - see that module's
-README) once there's more than one. Routes are first-match-wins; two
-categories both left on the default `"true"` catch-all means only the
-alphabetically-first one ever receives anything - the calling module's `check`
-block catches this and fails plan with a clear message rather than leaving a
-category silently unreachable.
+**A named `log_pipeline_members` entry does NOT automatically get a route.**
+A member pipeline is a valid, complete object on its own - the platform has
+no requirement that every member be paired with a routing entry. Set
+`create_route: true` on a member once it's actually meant to be reachable;
+left unset (default `false`), the member still gets created (and still
+joins the pipeline group) but produces no entry in `routes` at all - no
+inert placeholder route cluttering the table for a pipeline that isn't
+ready to receive traffic yet.
 
-Because each category's route is computed from `dynatrace_log_pipeline`'s
-output, `log_routing` cannot be enabled without `log_pipeline` also
-being set - a separate `check` block in the calling module enforces this too.
+**Every ROUTED named `log_pipeline_members` entry (`create_route: true`)
+that's left on the (unrelated) `"true"` string some other member also uses
+needs its own real `routing_matcher`** (see `dynatrace_log_pipeline_member`'s
+README) - the calling module's `check` block fails plan if more than one
+routed member's matcher is literally `"true"`, since routes are
+first-match-wins and only the first would ever fire. Members with
+`create_route` not set to `true` are excluded from that check entirely,
+since they don't produce a route to be ambiguous about. `default_member` is
+separately exempt from this check - it's evaluated on its own, not compared
+against named members - but note it is *not* implicitly `"true"`; see above.
+
+```yaml
+log_pipeline_members:
+  nginx_test:
+    custom_id: logs-tenant-nginx-test
+    display_name: "Nginx test member"
+    # No create_route (defaults false): this pipeline exists and is part of
+    # the group, but has no routing_entry at all - nothing reaches it yet.
+    metric_extraction_rules: [...]
+```
+
+Because the catch-all route is computed from
+`dynatrace_log_pipeline_group`'s output, `log_routing` cannot be enabled
+without `log_pipeline_group` also being set - a separate `check` block in
+the calling module enforces this too.
 
 ## Inputs
 
