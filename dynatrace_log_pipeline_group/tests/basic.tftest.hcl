@@ -160,6 +160,18 @@ run "rejects_create_default_member_false_with_no_other_members" {
   ]
 }
 
+run "rejects_empty_base_pipelines" {
+  command = plan
+
+  variables {
+    base_pipelines = []
+  }
+
+  expect_failures = [
+    var.base_pipelines,
+  ]
+}
+
 run "rejects_base_pipeline_with_no_mandated_stages" {
   command = plan
 

@@ -335,7 +335,7 @@ moved {
   to   = module.dynatrace_log_pipeline
 }
 
-# for_each key changed from category name ("platform") to custom_id when the tenant's existing pipeline was demoted to log_pipeline_legacy - without this Terraform would destroy+recreate a real, live, immutable-custom_id pipeline.
+# ⚠️ Literal, tenant-specific addresses - moved blocks can't be parameterized per-tenant in Terraform, so this only covers the migration from key "platform" to custom_id "tiered_log_bucket_router". Verified true for every tenant today (only global_defaults.yaml sets log_pipeline/log_pipeline_legacy, no tenant_vars.yaml overrides it), but NOT enforced going forward: a tenant whose old category key or new custom_id ever differs from these two literals needs its OWN additional moved block (or a manual `terraform state mv`) before applying, or it will hit the exact same destroy/recreate-on-an-immutable-pipeline failure this block was added to fix.
 moved {
   from = module.dynatrace_log_pipeline["platform"]
   to   = module.dynatrace_log_pipeline["tiered_log_bucket_router"]
@@ -426,11 +426,12 @@ module "dynatrace_log_pipeline_group" {
 
 check "log_pipeline_group_requires_base" {
   assert {
+    # Checks length, not just key presence - log_pipeline_base: [] would satisfy a bare contains() check while leaving the group's composition with zero mandated base stages, defeating the whole point of wrapping members in a governed group.
     condition = (
       !contains(keys(var.tenant_vars), "log_pipeline_group") ||
-      contains(keys(var.tenant_vars), "log_pipeline_base")
+      length(try(var.tenant_vars.log_pipeline_base, [])) > 0
     )
-    error_message = "tenant_vars.log_pipeline_group is set without tenant_vars.log_pipeline_base. The group's composition is computed entirely from log_pipeline_base, so it can't be enabled on its own."
+    error_message = "tenant_vars.log_pipeline_group is set without at least one entry in tenant_vars.log_pipeline_base. The group's composition is computed entirely from log_pipeline_base, so it can't be enabled with that list empty or absent."
   }
 }
 

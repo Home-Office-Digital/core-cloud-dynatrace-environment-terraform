@@ -26,6 +26,12 @@ variable "base_pipelines" {
   default = []
 
   validation {
+    # Defense in depth for any caller, not just the root module's own check: a group with zero base pipelines wraps members in nothing, defeating this module's entire governance purpose (see README - "one or more base pipelines").
+    condition     = length(var.base_pipelines) > 0
+    error_message = "base_pipelines must contain at least one entry - a pipeline group with none would mandate no shared stages onto its members at all."
+  }
+
+  validation {
     condition     = alltrue([for base_pipeline in var.base_pipelines : contains(["include", "exclude", "includeAll"], base_pipeline.mandate_stages_type)])
     error_message = "Every base_pipelines entry's mandate_stages_type must be one of: include, exclude, includeAll."
   }
