@@ -13,3 +13,7 @@ output "pipeline_display_name" {
 output "metric_rule_count" {
   value = length(var.metric_extraction_rules)
 }
+
+output "processing_rule_count" {
+  value = length(var.processing_fields_add_rules)
+}

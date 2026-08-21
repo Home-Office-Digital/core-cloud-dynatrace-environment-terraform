@@ -117,3 +117,30 @@ run "rejects_value_metric_missing_field" {
     var.metric_extraction_rules,
   ]
 }
+
+run "plan_creates_member_pipeline_with_processing_rule" {
+  command = plan
+
+  variables {
+    metric_extraction_rules = []
+    processing_fields_add_rules = [
+      {
+        id          = "processor_set_loglevel_error"
+        description = "Set loglevel to ERROR for 5xx records"
+        matcher     = "matchesPhrase(content, \" 500 \")"
+        field_name  = "loglevel"
+        field_value = "ERROR"
+      }
+    ]
+  }
+
+  assert {
+    condition     = output.processing_rule_count == 1
+    error_message = "Expected processing_rule_count to match number of rules supplied"
+  }
+
+  assert {
+    condition     = dynatrace_openpipeline_v2_logs_pipelines.member.processing[0].processors[0].processor[0].fields_add[0].fields[0].field[0].value == "ERROR"
+    error_message = "Expected fields_add field value to be passed through"
+  }
+}

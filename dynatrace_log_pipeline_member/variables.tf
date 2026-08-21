@@ -9,7 +9,7 @@ variable "display_name" {
 }
 
 variable "metric_extraction_rules" {
-  description = "Ordered list of metric-extraction processors - the only stage this module exposes (governance is enforced by the pipeline group's member_stages, see dynatrace_log_pipeline_group)."
+  description = "Ordered list of metric-extraction processors (governance over which stages members may configure is enforced by the pipeline group's member_stages, see dynatrace_log_pipeline_group)."
 
   type = list(object({
     id          = string
@@ -45,4 +45,19 @@ variable "metric_extraction_rules" {
     condition     = alltrue([for rule in var.metric_extraction_rules : rule.type != "valueMetric" || rule.field != null])
     error_message = "Every metric_extraction_rules entry with type = \"valueMetric\" must set field."
   }
+}
+
+variable "processing_fields_add_rules" {
+  description = "Ordered list of processing-stage fieldsAdd rules. Use this to derive fields (for example, loglevel from content) before the group's mandated storage stage runs. Only takes effect if the pipeline group's member_stages permits the processing stage."
+
+  type = list(object({
+    id          = string
+    description = optional(string, "")
+    enabled     = optional(bool, true)
+    matcher     = string
+    field_name  = string
+    field_value = string
+  }))
+
+  default = []
 }

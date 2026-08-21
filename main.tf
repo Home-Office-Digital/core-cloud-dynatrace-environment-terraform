@@ -388,9 +388,10 @@ module "dynatrace_log_pipeline_member" {
   # Additional named member pipelines - not required for default routing (dynatrace_log_pipeline_group's default_member covers that); only needed for team-specific self-service metrics, one per key.
   for_each = try(var.tenant_vars.log_pipeline_members, {})
 
-  custom_id               = each.value.custom_id
-  display_name            = each.value.display_name
-  metric_extraction_rules = try(each.value.metric_extraction_rules, [])
+  custom_id                   = each.value.custom_id
+  display_name                = each.value.display_name
+  metric_extraction_rules     = try(each.value.metric_extraction_rules, [])
+  processing_fields_add_rules = try(each.value.processing_fields_add_rules, [])
 }
 
 module "dynatrace_log_pipeline_group" {
