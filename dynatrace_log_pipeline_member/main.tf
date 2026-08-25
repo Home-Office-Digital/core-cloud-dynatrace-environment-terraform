@@ -10,6 +10,33 @@ resource "dynatrace_openpipeline_v2_logs_pipelines" "member" {
     create_before_destroy = true
   }
 
+  dynamic "processing" {
+    for_each = length(var.processing_fields_add_rules) > 0 ? [1] : []
+    content {
+      processors {
+        dynamic "processor" {
+          for_each = var.processing_fields_add_rules
+          content {
+            type        = "fieldsAdd"
+            id          = processor.value.id
+            description = processor.value.description
+            enabled     = processor.value.enabled
+            matcher     = processor.value.matcher
+
+            fields_add {
+              fields {
+                field {
+                  name  = processor.value.field_name
+                  value = processor.value.field_value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   dynamic "metric_extraction" {
     for_each = length(var.metric_extraction_rules) > 0 ? [1] : []
     content {

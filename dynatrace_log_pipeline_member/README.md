@@ -2,13 +2,15 @@
 
 This module manages a single tenant/team-owned **member pipeline**
 (`dynatrace_openpipeline_v2_logs_pipelines` with `group_role = "memberPipeline"`,
-`routing = "routable"`) that only ever configures the **metric extraction**
-stage - counting or measuring values out of log records the team already
-owns.
+`routing = "routable"`) that only ever configures the **processing**
+(`fieldsAdd`) and **metric extraction** stages - deriving fields (for
+example, `loglevel` from raw content) and counting or measuring values out
+of log records the team already owns.
 
 It is deliberately narrow: `group_role` and `routing` are hardcoded inside
 this module, not exposed as inputs, and there is no way to configure
-`processing`, `security_context`, or `storage` here at all.
+`security_context` or `storage` here at all - those stay base-pipeline-only,
+enforced by the pipeline group's `member_stages`.
 
 ## ⚠️ This is one half of a governance boundary, not the whole thing
 
@@ -17,7 +19,7 @@ wiring up a member pipeline with extra stages through this code path. It
 does **not**, by itself, stop the Dynatrace API from running whatever stages
 a member pipeline happens to have configured - that enforcement is the
 `dynatrace_log_pipeline_group` module's `member_stages` restriction
-(`type = "include", include = ["metricExtraction"]`), applied once this
+(`type = "include", include = ["processing", "metricExtraction"]`), applied once this
 pipeline is added to that group's `member_pipeline_ids`. A member pipeline
 created by this module but never added to the group is unrestricted - it
 must be paired with `dynatrace_log_pipeline_group` to actually be governed.
@@ -87,6 +89,7 @@ log_pipeline_members:
 | `custom_id` | `custom_id` of the member pipeline | `string` | n/a | yes |
 | `display_name` | Display name of the member pipeline | `string` | n/a | yes |
 | `metric_extraction_rules` | Ordered list of `{ id, description, enabled, matcher, type, metric_key, field, default_value, dimensions }` metric-extraction processors. `type` is `counterMetric` or `valueMetric`; `field` is required for `valueMetric`. `dimensions` is a list of `{ extraction_type, strategy, source_field_name, destination_field_name }`. | `list(object(...))` | `[]` | no |
+| `processing_fields_add_rules` | Ordered list of `{ id, description, enabled, matcher, field_name, field_value }` processing-stage `fieldsAdd` processors, run before metric extraction and before the group's mandated storage stage. | `list(object(...))` | `[]` | no |
 
 ## Outputs
 
@@ -96,19 +99,22 @@ log_pipeline_members:
 | `pipeline_custom_id` | The managed pipeline's `custom_id` |
 | `pipeline_display_name` | The managed pipeline's `display_name` |
 | `metric_rule_count` | Number of metric-extraction rules applied |
+| `processing_rule_count` | Number of processing-stage rules applied |
 
 ## Matcher syntax
 
 `matcher` is a DQL boolean expression evaluated against each log record.
-Since this pipeline never runs a `processing` stage of its own, a rule's
-`field`/dimension source fields must already exist on the raw record or be
-added upstream by the group's base pipeline(s) - there is no parsing step
-available here to derive new fields first. Verify field names against real
-records (Logs app) rather than assuming them.
+`processing_fields_add_rules` matchers run against the raw record (typically
+`content`), since nothing has derived fields yet at that point. Any field a
+`metric_extraction_rules` matcher/dimension relies on must already exist on
+the raw record, be set by this module's own `processing_fields_add_rules`
+above it, or be added upstream by the group's base pipeline(s) - verify
+field names against real records (Logs app) rather than assuming them.
 
 ## Provider resource reference
 
 [`dynatrace_openpipeline_v2_logs_pipelines`](https://registry.terraform.io/providers/dynatrace-oss/dynatrace/latest/docs/resources/openpipeline_v2_logs_pipelines) -
 same underlying resource as `dynatrace_log_pipeline`, just restricted by
 convention (this module's own limited inputs) plus by the pipeline group's
-`member_stages` enforcement to the metric-extraction stage only.
+`member_stages` enforcement to the processing and metric-extraction stages
+only.
