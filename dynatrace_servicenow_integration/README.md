@@ -20,10 +20,6 @@ Information from terraform will be passed on to the script as environment variab
 
 ## Known Issues
 
-### Hardcoded payload
-
-The payload within the [create_integration](./integration_utils/create_integration), originally meant to utilise the `servicenow_integration.servicenow_payload`, is now hardcoded as there are issues in relation to handling complex strings by bash. This has to be addressed through [a separate ticket](https://collaboration.homeoffice.gov.uk/jira/browse/CCL-3387), if at all required (i.e if the proper solution takes longer).
-
 ### Hardcoded integration name
 
 Currently this module handles only one integration and therefore, to prevent any malfunction, have the integration name hard-coded. Though may not be needed at all, if required, must be handled in a separate ticket and make careful modifications to the script.

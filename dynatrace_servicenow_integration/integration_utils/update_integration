@@ -7,6 +7,8 @@
 
 set -eu
 
+webhook_payload_json=$(printf '%s' "${WEBHOOK_PAYLOAD}" | jq -Rs .)
+
 curl "${DYNATRACE_ENV_URL}api/v2/settings/objects/${OBJECT_ID}" \
 -X PUT \
 -H 'Accept: application/json; charset=utf-8' \
@@ -31,6 +33,6 @@ curl "${DYNATRACE_ENV_URL}api/v2/settings/objects/${OBJECT_ID}" \
               \"clientId\":\"${SERVICENOW_CLIENT_ID}\",
               \"clientSecret\":\"${TF_VAR_SERVICENOW_CLIENT_SECRET}\"
           },
-          \"payload\": \"{\n  \\\"ImpactedEntities\\\": {ImpactedEntities},\n  \\\"ImpactedEntity\\\": \\\"{ImpactedEntity}\\\",\n  \\\"PID\\\": \\\"{PID}\\\",\n  \\\"ProblemDetailsHTML\\\": \\\"{ProblemDetailsHTML}\\\",\n  \\\"ProblemDetailsJSONv2\\\": {ProblemDetailsJSONv2},\n  \\\"ProblemDetailsMarkdown\\\": \\\"{ProblemDetailsMarkdown}\\\",\n  \\\"ProblemDetailsText\\\": \\\"{ProblemDetailsText}\\\",\n  \\\"ProblemID\\\": \\\"{ProblemID}\\\",\n  \\\"ProblemImpact\\\": \\\"{ProblemImpact}\\\",\n  \\\"ProblemSeverity\\\": \\\"{ProblemSeverity}\\\",\n  \\\"ProblemTitle\\\": \\\"{ProblemTitle}\\\",\n  \\\"ProblemURL\\\": \\\"{ProblemURL}\\\",\n  \\\"State\\\": \\\"{State}\\\",\n  \\\"Tags\\\": \\\"{Tags}\\\"\n}\"
+          \"payload\":${webhook_payload_json}
         }
       }"

@@ -47,7 +47,7 @@ resource "terraform_data" "servicenow_integration" {
       INTEGRATION_NAME = self.triggers_replace.integration_name
       ENABLED = self.triggers_replace.state
       ALERTING_PROFILE_ID = self.triggers_replace.alerting_profile_id
-      WEBHOOK_PAYLOAD = self.triggers_replace.integration_payload # TODO - Due to known issues (refer to README), this value is currently ignored.
+      WEBHOOK_PAYLOAD = self.triggers_replace.integration_payload
       SERVICENOW_END_POINT = self.triggers_replace.snow_end_point
       SERVICENOW_ENV_ID = self.triggers_replace.snow_env_id
       SERVICENOW_CLIENT_ID = self.triggers_replace.snow_client_id
@@ -64,7 +64,7 @@ resource "terraform_data" "servicenow_integration" {
       DELETE_INTEGRATION =  "true"
       ENABLED = self.triggers_replace.state
       ALERTING_PROFILE_ID = self.triggers_replace.alerting_profile_id
-      WEBHOOK_PAYLOAD = self.triggers_replace.integration_payload # TODO - Due to known issues (refer to README), this value is currently ignored.
+      WEBHOOK_PAYLOAD = self.triggers_replace.integration_payload
       SERVICENOW_END_POINT = self.triggers_replace.snow_end_point
       SERVICENOW_ENV_ID = self.triggers_replace.snow_env_id
       SERVICENOW_CLIENT_ID = self.triggers_replace.snow_client_id
