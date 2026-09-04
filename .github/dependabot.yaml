@@ -3,22 +3,18 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore:"
     reviewers:
       - "Home-Office-Digital/hoos-engineering"
-    labels:
-      - "dependencies"
-      - "patch"
+    labels: []
   - package-ecosystem: "terraform"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: "chore:"
     reviewers:
       - "Home-Office-Digital/hoos-engineering"
-    labels:
-      - "dependencies"
-      - "patch"
+    labels: []
