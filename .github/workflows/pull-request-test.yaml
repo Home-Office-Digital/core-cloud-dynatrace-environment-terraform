@@ -21,6 +21,7 @@ jobs:
           - dynatrace_platform_buckets
           - dynatrace_log_pipeline
           - dynatrace_log_routing
+          - azure_account_configuration
     steps:
       - name: Clone the Repository
         uses: actions/checkout@v4

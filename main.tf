@@ -18,6 +18,14 @@ module "aws_account_configurations" {
   default_services = local.default_services
 }
 
+module "azure_account_configurations" {
+  source          = "./azure_account_configuration"
+  for_each        = try(var.tenant_vars.azure_connections, {})
+  tenant_vars     = each.value
+  connection_name = each.key
+  client_secret   = try(var.azure_client_secrets[each.key], "")
+}
+
 module "dynatrace_generic_types" {
   count  = contains(keys(var.tenant_vars), "generic_types") ? 1 : 0
   source = "./dynatrace_generic_types"
