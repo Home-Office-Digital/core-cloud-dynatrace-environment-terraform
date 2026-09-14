@@ -1,6 +1,6 @@
 locals {
-  # true only when principal_object_id is set to a non-blank value, not just present.
-  monitoring_config_enabled = try(trimspace(coalesce(var.tenant_vars.principal_object_id, "")) != "", false)
+  # coalesce() itself errors when every argument is null/empty - try() catches that case.
+  monitoring_config_enabled = try(trimspace(coalesce(var.principal_object_id, "")) != "", false)
 
   default_azure_feature_sets = [
     "microsoft_apimanagement.service_essential",

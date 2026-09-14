@@ -12,8 +12,8 @@ metric/entity ingestion, following the same shape as `aws_account_configuration`
    `consumers`). Settings 2.0 schema: `builtin:hyperscaler-authentication.connections.azure`.
    Confirmed against the [provider's resource docs](https://registry.terraform.io/providers/dynatrace-oss/dynatrace/latest/docs/resources/azure_connection).
 2. **`dynatrace_hub_extension_v2_config.monitoring_config`** (created only
-   when `tenant_vars.principal_object_id` is set) - the region/tag/
-   security-context scope and feature-set selection.
+   when `principal_object_id` is set) - the region/tag/security-context
+   scope and feature-set selection.
 
 **Resource 2 is a different API family, not a Settings 2.0 object.** It's an
 Extensions Framework 2.0 (EF2) "monitoring configuration" for the
@@ -106,37 +106,31 @@ new environment.
 
 ## Secrets
 
-`client_secret` is a dedicated sensitive module input, **not** a `tenant_vars`
-key - it must never be committed to `tenant_vars.yaml`. It's sourced the same
-way `SERVICENOW_CLIENT_SECRET` is (see `azure_shared_variables.tf`): AWS
-Secrets Manager -> a dedicated per-secret IAM role -> the terragrunt
-pipeline's `TF_VAR_azure_client_secrets` (a `map(string)` keyed by connection
-name, mirroring `slack_webhook_urls`).
-
-`application_id`/`directory_id`/`principal_object_id` are not secret (they're
-app registration identifiers, not the secret itself) and live in
-`tenant_vars.yaml` like any other AWS connection field.
+`application_id`, `directory_id`, `principal_object_id`, and `client_secret`
+are all dedicated sensitive module inputs, **not** `tenant_vars` keys - none
+of them are committed to `tenant_vars.yaml`. All four come from the same AWS
+Secrets Manager secret (`cc-dynatrace-azure-credentials`), as a per-connection
+object: `{"<connection name>": {"application_id": "...", "directory_id": "...", "principal_object_id": "...", "client_secret": "..."}}`,
+via a dedicated per-secret IAM role -> the terragrunt pipeline's
+`TF_VAR_azure_connection_secrets` (see `azure_shared_variables.tf`).
+`principal_object_id` may be omitted from a connection's object - unset means
+connection-only, no monitoring config.
 
 ## Example `tenant_vars.yaml`
 
-Connection object only, no monitoring configuration (no entities/metrics -
-this is what "1 added" with nothing visible in the Clouds app means):
+Everything identity/credential-related now lives in AWS Secrets Manager, so a
+minimal connection-only entry needs no fields at all:
 
 ```yaml
 azure_connections:
-  AIaaSDev:
-    application_id: "<Entra ID app's Application (client) ID>"
-    directory_id: "<Entra ID Directory (tenant) ID>"
+  AIaaSDev: {}
 ```
 
-Full setup, with monitoring configuration (matches `tenants/hoos/dev/tenant_vars.yaml`):
+Full setup, with monitoring configuration (matches `tenants/global/dev/tenant_vars.yaml`):
 
 ```yaml
 azure_connections:
   AIaaSDev:
-    application_id: "<Entra ID app's Application (client) ID>"
-    directory_id: "<Entra ID Directory (tenant) ID>"
-    principal_object_id: "<Service Principal Object ID - NOT application_id>"
     deployment_scope: "SUBSCRIPTION"
     regions: ["uksouth", "ukwest", "global", "westeurope"]
     security_context:
@@ -148,8 +142,11 @@ azure_connections:
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
 | `connection_name` | Name of the connection (the `tenant_vars.azure_connections` map key) | `string` | n/a | yes |
-| `tenant_vars` | Per-connection config - see field list in `variables.tf` | `any` | n/a | yes |
-| `client_secret` | Azure app registration client secret | `string` (sensitive) | n/a | yes |
+| `tenant_vars` | Per-connection config (non-identity fields) - see field list in `variables.tf` | `any` | n/a | yes |
+| `application_id` | Application (client) ID, from AWS Secrets Manager | `string` (sensitive) | n/a | yes |
+| `directory_id` | Directory (tenant) ID, from AWS Secrets Manager | `string` (sensitive) | n/a | yes |
+| `principal_object_id` | Service Principal Object ID, from AWS Secrets Manager | `string` (sensitive) | `null` | no |
+| `client_secret` | Azure app registration client secret, from AWS Secrets Manager | `string` (sensitive) | n/a | yes |
 
 ## Outputs
 

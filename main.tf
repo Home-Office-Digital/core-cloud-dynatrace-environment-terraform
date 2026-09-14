@@ -19,11 +19,14 @@ module "aws_account_configurations" {
 }
 
 module "azure_account_configurations" {
-  source          = "./azure_account_configuration"
-  for_each        = try(var.tenant_vars.azure_connections, {})
-  tenant_vars     = each.value
-  connection_name = each.key
-  client_secret   = try(var.azure_client_secrets[each.key], "")
+  source              = "./azure_account_configuration"
+  for_each            = try(var.tenant_vars.azure_connections, {})
+  tenant_vars         = each.value
+  connection_name     = each.key
+  application_id      = try(var.azure_connection_secrets[each.key].application_id, "")
+  directory_id        = try(var.azure_connection_secrets[each.key].directory_id, "")
+  principal_object_id = try(var.azure_connection_secrets[each.key].principal_object_id, null)
+  client_secret       = try(var.azure_connection_secrets[each.key].client_secret, "")
 }
 
 module "dynatrace_generic_types" {

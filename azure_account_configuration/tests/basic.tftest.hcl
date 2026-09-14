@@ -2,11 +2,10 @@ mock_provider "dynatrace" {}
 
 variables {
   connection_name = "AIaaSDev"
+  application_id  = "11111111-1111-1111-1111-111111111111"
+  directory_id    = "22222222-2222-2222-2222-222222222222"
   client_secret   = "mock-secret"
-  tenant_vars = {
-    application_id = "11111111-1111-1111-1111-111111111111"
-    directory_id   = "22222222-2222-2222-2222-222222222222"
-  }
+  tenant_vars     = {}
 }
 
 run "plan_creates_azure_connection" {
@@ -24,17 +23,17 @@ run "plan_creates_azure_connection" {
 
   assert {
     condition     = dynatrace_azure_connection.this.client_secret[0].application_id == "11111111-1111-1111-1111-111111111111"
-    error_message = "Expected application_id to be passed through from tenant_vars"
+    error_message = "Expected application_id to be passed through from the application_id input"
   }
 
   assert {
     condition     = dynatrace_azure_connection.this.client_secret[0].directory_id == "22222222-2222-2222-2222-222222222222"
-    error_message = "Expected directory_id to be passed through from tenant_vars"
+    error_message = "Expected directory_id to be passed through from the directory_id input"
   }
 
   assert {
     condition     = dynatrace_azure_connection.this.client_secret[0].client_secret == "mock-secret"
-    error_message = "Expected client_secret to be passed through from the dedicated client_secret input, not tenant_vars"
+    error_message = "Expected client_secret to be passed through from the client_secret input"
   }
 
   assert {
@@ -44,7 +43,7 @@ run "plan_creates_azure_connection" {
 
   assert {
     condition     = length(dynatrace_hub_extension_v2_config.monitoring_config) == 0
-    error_message = "Expected monitoring config to be skipped when principal_object_id is not set in tenant_vars"
+    error_message = "Expected monitoring config to be skipped when principal_object_id is not set"
   }
 }
 
@@ -52,15 +51,15 @@ run "plan_creates_monitoring_config_when_principal_object_id_set" {
   command = apply # value embeds the connection's id, unknown at plan time
 
   variables {
-    connection_name = "AIaaSDev"
-    client_secret   = "mock-secret"
+    connection_name     = "AIaaSDev"
+    application_id      = "11111111-1111-1111-1111-111111111111"
+    directory_id        = "22222222-2222-2222-2222-222222222222"
+    principal_object_id = "33333333-3333-3333-3333-333333333333"
+    client_secret       = "mock-secret"
     tenant_vars = {
-      application_id      = "11111111-1111-1111-1111-111111111111"
-      directory_id        = "22222222-2222-2222-2222-222222222222"
-      consumers            = ["SVC:com.dynatrace.da"]
-      principal_object_id = "33333333-3333-3333-3333-333333333333"
-      regions              = ["uksouth", "westeurope"]
-      deployment_scope     = "SUBSCRIPTION"
+      consumers        = ["SVC:com.dynatrace.da"]
+      regions          = ["uksouth", "westeurope"]
+      deployment_scope = "SUBSCRIPTION"
     }
   }
 
@@ -119,12 +118,12 @@ run "plan_creates_dt_security_context_enrichment_when_set" {
   command = apply
 
   variables {
-    connection_name = "AIaaSDev"
-    client_secret   = "mock-secret"
+    connection_name     = "AIaaSDev"
+    application_id      = "11111111-1111-1111-1111-111111111111"
+    directory_id        = "22222222-2222-2222-2222-222222222222"
+    principal_object_id = "33333333-3333-3333-3333-333333333333"
+    client_secret       = "mock-secret"
     tenant_vars = {
-      application_id      = "11111111-1111-1111-1111-111111111111"
-      directory_id        = "22222222-2222-2222-2222-222222222222"
-      principal_object_id = "33333333-3333-3333-3333-333333333333"
       security_context = {
         literal = "aiaas"
       }
@@ -141,18 +140,17 @@ run "monitoring_config_skipped_when_principal_object_id_is_null" {
   command = plan
 
   variables {
-    connection_name = "AIaaSDev"
-    client_secret   = "mock-secret"
-    tenant_vars = {
-      application_id      = "11111111-1111-1111-1111-111111111111"
-      directory_id        = "22222222-2222-2222-2222-222222222222"
-      principal_object_id = null
-    }
+    connection_name     = "AIaaSDev"
+    application_id      = "11111111-1111-1111-1111-111111111111"
+    directory_id        = "22222222-2222-2222-2222-222222222222"
+    principal_object_id = null
+    client_secret       = "mock-secret"
+    tenant_vars         = {}
   }
 
   assert {
     condition     = length(dynatrace_hub_extension_v2_config.monitoring_config) == 0
-    error_message = "Expected monitoring config to be skipped when principal_object_id is present but null, not just when the key is absent"
+    error_message = "Expected monitoring config to be skipped when principal_object_id is null"
   }
 }
 
@@ -160,18 +158,17 @@ run "monitoring_config_skipped_when_principal_object_id_is_blank" {
   command = plan
 
   variables {
-    connection_name = "AIaaSDev"
-    client_secret   = "mock-secret"
-    tenant_vars = {
-      application_id      = "11111111-1111-1111-1111-111111111111"
-      directory_id        = "22222222-2222-2222-2222-222222222222"
-      principal_object_id = "   "
-    }
+    connection_name     = "AIaaSDev"
+    application_id      = "11111111-1111-1111-1111-111111111111"
+    directory_id        = "22222222-2222-2222-2222-222222222222"
+    principal_object_id = "   "
+    client_secret       = "mock-secret"
+    tenant_vars         = {}
   }
 
   assert {
     condition     = length(dynatrace_hub_extension_v2_config.monitoring_config) == 0
-    error_message = "Expected monitoring config to be skipped when principal_object_id is present but blank"
+    error_message = "Expected monitoring config to be skipped when principal_object_id is blank"
   }
 }
 
@@ -180,14 +177,45 @@ run "client_secret_validation_rejects_empty_value" {
 
   variables {
     connection_name = "AIaaSDev"
+    application_id  = "11111111-1111-1111-1111-111111111111"
+    directory_id    = "22222222-2222-2222-2222-222222222222"
     client_secret   = ""
-    tenant_vars = {
-      application_id = "11111111-1111-1111-1111-111111111111"
-      directory_id   = "22222222-2222-2222-2222-222222222222"
-    }
+    tenant_vars     = {}
   }
 
   expect_failures = [
     var.client_secret,
+  ]
+}
+
+run "application_id_validation_rejects_empty_value" {
+  command = plan
+
+  variables {
+    connection_name = "AIaaSDev"
+    application_id  = ""
+    directory_id    = "22222222-2222-2222-2222-222222222222"
+    client_secret   = "mock-secret"
+    tenant_vars     = {}
+  }
+
+  expect_failures = [
+    var.application_id,
+  ]
+}
+
+run "directory_id_validation_rejects_empty_value" {
+  command = plan
+
+  variables {
+    connection_name = "AIaaSDev"
+    application_id  = "11111111-1111-1111-1111-111111111111"
+    directory_id    = ""
+    client_secret   = "mock-secret"
+    tenant_vars     = {}
+  }
+
+  expect_failures = [
+    var.directory_id,
   ]
 }

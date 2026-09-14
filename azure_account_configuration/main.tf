@@ -3,8 +3,8 @@ resource "dynatrace_azure_connection" "this" {
   type = "clientSecret"
 
   client_secret {
-    application_id = var.tenant_vars.application_id
-    directory_id   = var.tenant_vars.directory_id
+    application_id = var.application_id
+    directory_id   = var.directory_id
     client_secret  = var.client_secret
     consumers      = try(var.tenant_vars.consumers, [])
   }
@@ -30,8 +30,8 @@ resource "dynatrace_hub_extension_v2_config" "monitoring_config" {
             description        = var.connection_name
             enabled            = true
             connectionId       = dynatrace_azure_connection.this.id
-            servicePrincipalId = var.tenant_vars.application_id
-            principalObjectId  = var.tenant_vars.principal_object_id
+            servicePrincipalId = var.application_id
+            principalObjectId  = var.principal_object_id
             type               = "SECRET"
           }
         ]
