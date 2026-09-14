@@ -49,9 +49,7 @@ run "plan_creates_azure_connection" {
 }
 
 run "plan_creates_monitoring_config_when_principal_object_id_set" {
-  # apply, not plan: value embeds dynatrace_azure_connection.this.id, which is
-  # unknown until the connection is actually created.
-  command = apply
+  command = apply # value embeds the connection's id, unknown at plan time
 
   variables {
     connection_name = "AIaaSDev"

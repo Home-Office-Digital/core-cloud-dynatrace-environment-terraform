@@ -5,34 +5,20 @@ variable "connection_name" {
 
 variable "tenant_vars" {
   description = <<-EOT
-    Per-connection configuration. Expected keys:
-      application_id          (string, required) Application (client) ID of the Azure app registration.
-      directory_id            (string, required) Directory (tenant) ID of Microsoft Entra ID.
-      consumers               (list(string), optional) Dynatrace integrations allowed to use this connection.
-                               Possible values: "SVC:com.dynatrace.da". Defaults to [].
-      principal_object_id     (string, optional) Object ID of the app's Service Principal (NOT the
-                               application_id) - required by the monitoring configuration, not the
-                               connection itself. Leave unset to create only the connection/credential
-                               object, with no monitoring configuration (no entities/metrics ingested).
-      extension_version       (string, optional) Version of the com.dynatrace.extension.da-azure
-                               extension active in the target environment. Defaults to "1.1.8" - verify
-                               against the target environment before relying on the default (see README).
-      feature_sets            (list(string), optional) Azure service feature sets to monitor. Defaults to
-                               a broad built-in list - see locals.tf.
-      regions                 (list(string), optional) Azure regions to monitor (locationFiltering).
-                               Defaults to ["global"].
-      subscription_filtering  (list(string), optional) Subscription IDs to include/exclude. Defaults to [].
-      subscription_filtering_mode (string, optional) "INCLUDE" or "EXCLUDE". Defaults to "INCLUDE".
-      tag_filters             (list, optional) Tag-based scoping of monitored resources. Defaults to [].
-      tag_enrichment          (list, optional) Distinct from security_context below. Shape unconfirmed -
-                               defaults to [].
-      security_context        (object, optional) dt.security_context enrichment, passed through verbatim
-                               into azure.dtLabelsEnrichment["dt.security_context"]. Confirmed shape for a
-                               literal value: { literal = "<value>" }. Omitted entirely (not even an empty
-                               object) when unset. See README for the tagKey variant caveat.
-      deployment_scope        (string, optional) "MANAGEMENT_GROUP" or "SUBSCRIPTION". Defaults to
-                               "SUBSCRIPTION" - this ticket's confirmed real use case (management-group
-                               level is explicitly a separate, unexplored future initiative per the ticket).
+    Per-connection configuration. Keys:
+      application_id              (required) Application (client) ID.
+      directory_id                (required) Directory (tenant) ID.
+      consumers                   (optional, default []) e.g. ["SVC:com.dynatrace.da"].
+      principal_object_id         (optional) Service Principal Object ID. Unset = connection only, no monitoring config.
+      extension_version           (optional, default "1.1.8") com.dynatrace.extension.da-azure version.
+      feature_sets                (optional, default: see locals.tf)
+      regions                     (optional, default ["global"]) -> locationFiltering.
+      subscription_filtering      (optional, default [])
+      subscription_filtering_mode (optional, default "INCLUDE")
+      tag_filters                 (optional, default [])
+      tag_enrichment              (optional, default []) shape unconfirmed, distinct from security_context.
+      security_context            (optional) e.g. { literal = "aiaas" } -> azure.dtLabelsEnrichment["dt.security_context"].
+      deployment_scope            (optional, default "SUBSCRIPTION")
   EOT
   type        = any
 }

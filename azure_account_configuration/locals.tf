@@ -1,15 +1,7 @@
 locals {
-  # Monitoring config is created only when principal_object_id is present AND
-  # non-null/non-blank - key presence alone isn't enough, since a null or ""
-  # value would still pass a `contains(keys(...))` check but produce an
-  # invalid monitoring configuration. Wrapped in try() so a missing key (which
-  # errors on direct attribute access against tenant_vars) falls through to
-  # false instead of failing the whole plan.
+  # true only when principal_object_id is set to a non-blank value, not just present.
   monitoring_config_enabled = try(trimspace(coalesce(var.tenant_vars.principal_object_id, "")) != "", false)
 
-  # Sensible default feature set list for the com.dynatrace.extension.da-azure
-  # extension's monitoring configuration. Override per-connection via
-  # tenant_vars.feature_sets.
   default_azure_feature_sets = [
     "microsoft_apimanagement.service_essential",
     "microsoft_app.containerapps_essential",
