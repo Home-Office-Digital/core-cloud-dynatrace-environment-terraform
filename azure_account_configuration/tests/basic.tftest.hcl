@@ -37,8 +37,8 @@ run "plan_creates_azure_connection" {
   }
 
   assert {
-    condition     = length(dynatrace_azure_connection.this.client_secret[0].consumers) == 0
-    error_message = "Expected consumers to default to an empty list when tenant_vars omits it"
+    condition     = dynatrace_azure_connection.this.client_secret[0].consumers == tolist(["SVC:com.dynatrace.da"])
+    error_message = "Expected consumers to default to [\"SVC:com.dynatrace.da\"] (matching the API's own server-side default) when tenant_vars omits it"
   }
 
   assert {

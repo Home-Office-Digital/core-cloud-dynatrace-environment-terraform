@@ -6,7 +6,9 @@ resource "dynatrace_azure_connection" "this" {
     application_id = var.application_id
     directory_id   = var.directory_id
     client_secret  = var.client_secret
-    consumers      = try(var.tenant_vars.consumers, [])
+    # API defaults this to ["SVC:com.dynatrace.da"] server-side regardless of
+    # what's sent - matching it here avoids a destroy/recreate loop every plan.
+    consumers = try(var.tenant_vars.consumers, ["SVC:com.dynatrace.da"])
   }
 }
 
