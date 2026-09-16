@@ -35,6 +35,10 @@ default_rules:
     type: "SELECTOR"
     enabled: true
     entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+  glue:
+    type: "SELECTOR"
+    enabled: true
+    entity_selector: type(cloud:aws:glue)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
   application_without_projectid:
     type: "SELECTOR"
     enabled: true

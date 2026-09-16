@@ -18,6 +18,7 @@ variable "default_rules"{
     "lambda",
     "msk",
     "custom",
+    "glue",
     "application",
     "host",
     "service",
