@@ -2,67 +2,67 @@ default_rules:
   asg:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AUTO_SCALING_GROUP)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(AUTO_SCALING_GROUP)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   alb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_APPLICATION_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(AWS_APPLICATION_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   nlb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_NETWORK_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(AWS_NETWORK_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   ec2:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(EC2_INSTANCE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(EC2_INSTANCE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   elb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(ELASTIC_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(ELASTIC_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   rds:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(RELATIONAL_DATABASE_SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(RELATIONAL_DATABASE_SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   lambda:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_LAMBDA_FUNCTION)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(AWS_LAMBDA_FUNCTION)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   msk:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   custom:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   glue:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(cloud:aws:glue)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(cloud:aws:glue)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   application_without_projectid:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(APPLICATION),tag([AWS]service-id:${service_id}%{ if project_service != "" },PROJECT-SERVICE:${project_service}%{endif})
+    entity_selector: type(APPLICATION),tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id}%{ if project_service != "" },PROJECT-SERVICE:${project_service}%{endif})
   host_without_projectid:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(HOST),tag([AWS]service-id:${service_id}%{ if project_service != "" },PROJECT-SERVICE:${project_service}%{endif})
+    entity_selector: type(HOST),tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id}%{ if project_service != "" },PROJECT-SERVICE:${project_service}%{endif})
   service_without_projectid:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(SERVICE),tag([AWS]service-id:${service_id}%{ if project_service != "" },PROJECT-SERVICE:${project_service}%{endif})
+    entity_selector: type(SERVICE),tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id}%{ if project_service != "" },PROJECT-SERVICE:${project_service}%{endif})
   application:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(APPLICATION)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{ endif }%{ if project_service != "" },(PROJECT-SERVICE:${project_service})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(APPLICATION)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{ endif }%{ if project_service != "" },(PROJECT-SERVICE:${project_service})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   host:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{ endif }%{ if project_service != "" },(PROJECT-SERVICE:${project_service})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{ endif }%{ if project_service != "" },(PROJECT-SERVICE:${project_service})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   service:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id})%{ endif }%{ if project_service != "" },(PROJECT-SERVICE:${project_service})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }
+    entity_selector: type(SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{ endif }%{ if project_service != "" },(PROJECT-SERVICE:${project_service})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }
   indirect_queue:
     type: "SELECTOR"
     enabled: true
@@ -78,15 +78,15 @@ default_rules:
   hadoop:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(dt.entity.jmx:com_dynatrace_extension_hadoop_service),fromRelationships.isChildOf(type(PROCESS_GROUP_INSTANCE),fromRelationships.isProcessOf(type(HOST),tag([AWS]project-id:${project_id})%{ if service_id != "" },tag([AWS]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name})%{ endif }))
+    entity_selector: type(dt.entity.jmx:com_dynatrace_extension_hadoop_service),fromRelationships.isChildOf(type(PROCESS_GROUP_INSTANCE),fromRelationships.isProcessOf(type(HOST),tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }))
   ssl_cert_monitor_cert:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(python:certificate_monitor_certificate),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{endif}%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })
+    entity_selector: type(python:certificate_monitor_certificate),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif })
   ssl_cert_monitor:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(python:certificate_monitor),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{endif}%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })
+    entity_selector: type(python:certificate_monitor),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{endif}%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif })
   ssl_cert_remotes:
     type: "SELECTOR"
     enabled: true
@@ -94,71 +94,71 @@ default_rules:
   zookeeper:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })
+    entity_selector: type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{ endif }%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif })
   zookeeper_replica:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif }))
+    entity_selector: type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{ endif }%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif }))
   zookeeper_client:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(jmx:zookeeper-client),fromRelationships.calls(type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag("[AWS]project-id:${project_id}")%{ endif }%{ if service_id != "" },tag("[AWS]service-id:${service_id}")%{ endif }%{ if env_name != "" },tag("[AWS]environment-type:${env_name}")%{ endif })))
+    entity_selector: type(jmx:zookeeper-client),fromRelationships.calls(type(jmx:zookeeper-replica),fromRelationships.isChildOf(type(jmx:zookeeper),fromRelationships.runsOn(type(HOST)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if service_id != "" },tag([AWS]service-id:${service_id},[AZURE]service-id:${service_id},[ENVIRONMENT]service-id:${service_id})%{ endif }%{ if env_name != "" },tag([AWS]environment-type:${env_name},[AZURE]environment-type:${env_name},[ENVIRONMENT]environment-type:${env_name})%{ endif })))
   exclude_asg:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AUTO_SCALING_GROUP),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type(AUTO_SCALING_GROUP),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   exclude_alb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_APPLICATION_LOAD_BALANCER),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type(AWS_APPLICATION_LOAD_BALANCER),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   exclude_nlb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_NETWORK_LOAD_BALANCER),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type(AWS_NETWORK_LOAD_BALANCER),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   exclude_ec2:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(EC2_INSTANCE),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type(EC2_INSTANCE),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   exclude_elb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(ELASTIC_LOAD_BALANCER),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type(ELASTIC_LOAD_BALANCER),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   exclude_rds:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(RELATIONAL_DATABASE_SERVICE),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type(RELATIONAL_DATABASE_SERVICE),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   exclude_custom:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type("CUSTOM_DEVICE"),not(tag([AWS]dynatrace-all:false))
+    entity_selector: type("CUSTOM_DEVICE"),not(tag([AWS]dynatrace-all:false,[AZURE]dynatrace-all:false,[ENVIRONMENT]dynatrace-all:false))
   asg_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AUTO_SCALING_GROUP)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(AUTO_SCALING_GROUP)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   alb_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_APPLICATION_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(AWS_APPLICATION_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   nlb_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(AWS_NETWORK_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(AWS_NETWORK_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   ec2_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(EC2_INSTANCE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(EC2_INSTANCE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   elb_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(ELASTIC_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(ELASTIC_LOAD_BALANCER)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   rds_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(RELATIONAL_DATABASE_SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(RELATIONAL_DATABASE_SERVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   custom_with_envtags:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name})%{ endif }
+    entity_selector: type(CUSTOM_DEVICE)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }%{ if tag_env_name != "" },tag([AWS]environment-type:${tag_env_name},[AZURE]environment-type:${tag_env_name},[ENVIRONMENT]environment-type:${tag_env_name})%{ endif }
   match:
     type: "SELECTOR"
     enabled: true
@@ -428,7 +428,7 @@ default_rules:
   dynamodb:
     type: "SELECTOR"
     enabled: true
-    entity_selector: type(cloud:aws:dynamodb)%{ if project_id != "" },tag([AWS]project-id:${project_id})%{ endif }
+    entity_selector: type(cloud:aws:dynamodb)%{ if project_id != "" },tag([AWS]project-id:${project_id},[AZURE]project-id:${project_id},[ENVIRONMENT]project-id:${project_id})%{ endif }
   http_monitor:
     type: "SELECTOR"
     enabled: true
