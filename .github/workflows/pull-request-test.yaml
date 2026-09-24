@@ -23,6 +23,7 @@ jobs:
           - dynatrace_log_routing
           - azure_account_configuration
           - glue_job_events
+          - alerts/corecloud
     steps:
       - name: Clone the Repository
         uses: actions/checkout@v4
