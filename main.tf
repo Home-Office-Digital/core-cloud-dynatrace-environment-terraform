@@ -304,6 +304,25 @@ module "aws_cwl_s3_bucket" {
   ingestion_type                                = each.value.ingestion_type
 }
 
+module "glue_job_events" {
+  source   = "./glue_job_events"
+  for_each = try(var.tenant_vars.glue_job_events, {})
+
+  name                            = each.key
+  dynatrace_environment_url       = each.value.dynatrace_environment_url
+  dynatrace_api_token_secret_name = each.value.dynatrace_api_token_secret_name
+  dynatrace_api_token_json_key    = try(each.value.dynatrace_api_token_json_key, null)
+  dynatrace_api_token_kms_key_arn = try(each.value.dynatrace_api_token_kms_key_arn, null)
+  job_names                       = try(each.value.job_names, [])
+  terminal_states                 = try(each.value.terminal_states, ["FAILED", "TIMEOUT", "STOPPED"])
+  alert_states                    = try(each.value.alert_states, ["START_REQUESTED", "FAILED", "TIMEOUT", "STOPPED"])
+  capture_start_requests          = try(each.value.capture_start_requests, true)
+  event_timeout_minutes           = try(each.value.event_timeout_minutes, 15)
+  log_retention_days              = try(each.value.log_retention_days, 14)
+  tags                            = try(each.value.tags, {})
+  lambda_zip_output_path          = "${dirname(var.terragrunt_dir)}/lambda-artifacts/${each.key}-${basename(var.terragrunt_dir)}-glue-events.zip"
+}
+
 module "monitoring_k8s_clusters" {
   source          = "./monitoring"
   count           = contains(keys(var.tenant_vars), "k8s_monitoring_config") ? 1 : 0
