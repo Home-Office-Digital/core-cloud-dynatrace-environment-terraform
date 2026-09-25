@@ -102,6 +102,25 @@ class LambdaHandlerTest(unittest.TestCase):
         self.assertEqual(payload["properties"]["aws.glue.job.state"], "START_REQUESTED")
         self.assertEqual(payload["properties"]["aws.glue.job.run.id"], "jr_456")
 
+    @mock.patch.object(handler.urllib.request, "urlopen")
+    def test_failed_start_job_run_is_ignored(self, urlopen):
+        result = handler.lambda_handler(
+            {
+                "detail-type": "AWS API Call via CloudTrail",
+                "detail": {
+                    "eventSource": "glue.amazonaws.com",
+                    "eventName": "StartJobRun",
+                    "errorCode": "EntityNotFoundException",
+                    "errorMessage": "Failed to start job run due to missing metadata.",
+                    "requestParameters": {"jobName": "missing-job"},
+                },
+            },
+            None,
+        )
+
+        self.assertEqual(result, {"status": "ignored", "reason": "StartJobRun failed"})
+        urlopen.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

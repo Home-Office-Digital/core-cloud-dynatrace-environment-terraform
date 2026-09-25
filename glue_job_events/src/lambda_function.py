@@ -43,6 +43,13 @@ def _normalise_event(event):
 
 
 def lambda_handler(event, _context):
+    detail = event.get("detail", {})
+    if (
+        event.get("detail-type") == "AWS API Call via CloudTrail"
+        and detail.get("errorCode")
+    ):
+        return {"status": "ignored", "reason": "StartJobRun failed"}
+
     glue_event = _normalise_event(event)
     alert_states = set(filter(None, os.environ.get("ALERT_STATES", "").split(",")))
     event_type = "CUSTOM_ALERT" if glue_event["state"] in alert_states else "CUSTOM_INFO"

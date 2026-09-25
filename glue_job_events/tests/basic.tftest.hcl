@@ -23,6 +23,11 @@ run "plan_creates_filtered_start_and_terminal_rules" {
   }
 
   assert {
+    condition     = jsondecode(aws_cloudwatch_event_rule.start_requests[0].event_pattern).detail.errorCode == [{ exists = false }]
+    error_message = "The start rule must exclude failed StartJobRun API calls."
+  }
+
+  assert {
     condition     = aws_lambda_function.handler.environment[0].variables.TOKEN_SECRET_ARN != ""
     error_message = "The Lambda must receive the secret ARN rather than a token value."
   }

@@ -16,6 +16,7 @@ locals {
     detail = merge({
       eventSource = ["glue.amazonaws.com"]
       eventName   = ["StartJobRun"]
+      errorCode   = [{ exists = false }]
       }, length(var.job_names) > 0 ? {
       requestParameters = {
         jobName = sort(tolist(var.job_names))
