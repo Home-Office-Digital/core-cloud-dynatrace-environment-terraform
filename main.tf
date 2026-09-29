@@ -304,6 +304,20 @@ module "aws_cwl_s3_bucket" {
   ingestion_type                                = each.value.ingestion_type
 }
 
+module "dynatrace_lambda_sample" {
+  source = "./dynatrace_lambda_sample"
+  count  = try(var.tenant_vars.dynatrace_lambda_sample.enabled, false) ? 1 : 0
+
+  function_name                = var.tenant_vars.dynatrace_lambda_sample.function_name
+  lambda_zip_output_path       = "${dirname(var.terragrunt_dir)}/lambda-artifacts/${var.tenant_vars.dynatrace_lambda_sample.function_name}-${basename(var.terragrunt_dir)}.zip"
+  layer_arn                    = var.tenant_vars.dynatrace_lambda_sample.layer_arn
+  connection_token_secret_name = var.tenant_vars.dynatrace_lambda_sample.connection_token_secret_name
+  dt_tenant                    = var.tenant_vars.dynatrace_lambda_sample.dt_tenant
+  dt_cluster                   = var.tenant_vars.dynatrace_lambda_sample.dt_cluster
+  dt_connection_base_url       = var.tenant_vars.dynatrace_lambda_sample.dt_connection_base_url
+  tags                         = try(var.tenant_vars.dynatrace_lambda_sample.tags, {})
+}
+
 module "monitoring_k8s_clusters" {
   source          = "./monitoring"
   count           = contains(keys(var.tenant_vars), "k8s_monitoring_config") ? 1 : 0
