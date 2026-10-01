@@ -4,9 +4,8 @@ variables {
   name                            = "cc-prelive"
   dynatrace_environment_url       = "https://example.live.dynatrace.com"
   dynatrace_api_token_secret_name = "dynatrace/events-token"
-  dynatrace_api_token_json_key    = "DYNATRACE_API_TOKEN"
+  dynatrace_api_token_json_key    = null
   job_names                       = ["daily-etl"]
-  lambda_zip_output_path          = "./lambda-artifacts/test-glue-events.zip"
 }
 
 run "plan_creates_filtered_start_and_terminal_rules" {
@@ -28,8 +27,8 @@ run "plan_creates_filtered_start_and_terminal_rules" {
   }
 
   assert {
-    condition     = aws_lambda_function.handler.environment[0].variables.TOKEN_SECRET_ARN != ""
-    error_message = "The Lambda must receive the secret ARN rather than a token value."
+    condition     = aws_cloudwatch_event_api_destination.dynatrace.invocation_endpoint == "https://example.live.dynatrace.com/api/v2/events/ingest"
+    error_message = "The API destination must target the Dynatrace Events API."
   }
 
   assert {
@@ -38,8 +37,8 @@ run "plan_creates_filtered_start_and_terminal_rules" {
   }
 
   assert {
-    condition     = length(aws_lambda_function.handler.dead_letter_config) == 1
-    error_message = "Lambda asynchronous failures must use the encrypted dead-letter queue."
+    condition     = aws_cloudwatch_event_target.terminal_states.target_id == "DynatraceGlueTerminalEvents"
+    error_message = "Terminal Glue events must target the Dynatrace API destination directly."
   }
 }
 

@@ -29,12 +29,6 @@ variable "dynatrace_api_token_json_key" {
   default     = null
 }
 
-variable "dynatrace_api_token_kms_key_arn" {
-  description = "Customer-managed KMS key ARN used by the token secret, when applicable."
-  type        = string
-  default     = null
-}
-
 variable "job_names" {
   description = "Glue job names to forward. An empty set forwards all Glue jobs in the account and region."
   type        = set(string)
@@ -52,12 +46,6 @@ variable "terminal_states" {
   }
 }
 
-variable "alert_states" {
-  description = "States sent as CUSTOM_ALERT instead of CUSTOM_INFO. START_REQUESTED represents StartJobRun."
-  type        = set(string)
-  default     = ["START_REQUESTED", "FAILED", "TIMEOUT", "STOPPED"]
-}
-
 variable "capture_start_requests" {
   description = "Capture StartJobRun API calls. Requires a CloudTrail trail recording Glue management events."
   type        = bool
@@ -73,17 +61,6 @@ variable "event_timeout_minutes" {
     condition     = var.event_timeout_minutes >= 1 && var.event_timeout_minutes <= 360
     error_message = "event_timeout_minutes must be between 1 and 360."
   }
-}
-
-variable "log_retention_days" {
-  description = "CloudWatch retention for Lambda logs."
-  type        = number
-  default     = 14
-}
-
-variable "lambda_zip_output_path" {
-  description = "Path for the generated Lambda deployment ZIP."
-  type        = string
 }
 
 variable "tags" {

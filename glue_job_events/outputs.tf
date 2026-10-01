@@ -1,11 +1,11 @@
-output "lambda_function_name" {
-  description = "Name of the Lambda that forwards Glue events."
-  value       = aws_lambda_function.handler.function_name
+output "api_destination_arn" {
+  description = "ARN of the EventBridge API destination for Dynatrace."
+  value       = aws_cloudwatch_event_api_destination.dynatrace.arn
 }
 
-output "lambda_role_arn" {
-  description = "Lambda execution role ARN, for secrets with a restrictive resource policy."
-  value       = aws_iam_role.handler.arn
+output "api_destination_connection_arn" {
+  description = "ARN of the EventBridge connection used by the API destination."
+  value       = aws_cloudwatch_event_connection.dynatrace.arn
 }
 
 output "terminal_event_rule_name" {
