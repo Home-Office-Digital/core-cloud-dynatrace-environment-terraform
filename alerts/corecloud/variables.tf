@@ -17,20 +17,20 @@ variable "corecloud_alert_configs" {
 
 variable "corecloud_profile_alerting_rules" {
   type = map(object({
-    alerting_profile_name = string 
-    management_zone       = string
+    alerting_profile_name = string
+    management_zone       = optional(string, "")
     rules = map(object({
-      include_mode          = optional(string, "NONE")
-      tags                  = optional(list(string), [])
-      delay_in_minutes      = optional(number, 0)
-      severity_level        = optional(string)
+      include_mode     = optional(string, "NONE")
+      tags             = optional(list(string), [])
+      delay_in_minutes = optional(number, 0)
+      severity_level   = optional(string)
     }))
   }))
 }
 
 
 variable "slack_webhook_urls" {
-  type = map(string)
+  type        = map(string)
   description = "A map with keys matching the keys under 'core cloud' with the relevant channels' urls."
-  sensitive = true
+  sensitive   = true
 }

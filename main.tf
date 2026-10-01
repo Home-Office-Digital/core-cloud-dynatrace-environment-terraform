@@ -304,6 +304,21 @@ module "aws_cwl_s3_bucket" {
   ingestion_type                                = each.value.ingestion_type
 }
 
+module "glue_job_events" {
+  source   = "./glue_job_events"
+  for_each = try(var.tenant_vars.glue_job_events, {})
+
+  name                            = each.key
+  dynatrace_environment_url       = each.value.dynatrace_environment_url
+  dynatrace_api_token_secret_name = each.value.dynatrace_api_token_secret_name
+  dynatrace_api_token_json_key    = try(each.value.dynatrace_api_token_json_key, null)
+  job_names                       = try(each.value.job_names, [])
+  terminal_states                 = try(each.value.terminal_states, ["FAILED", "TIMEOUT", "STOPPED"])
+  capture_start_requests          = try(each.value.capture_start_requests, true)
+  event_timeout_minutes           = try(each.value.event_timeout_minutes, 15)
+  tags                            = try(each.value.tags, {})
+}
+
 module "monitoring_k8s_clusters" {
   source          = "./monitoring"
   count           = contains(keys(var.tenant_vars), "k8s_monitoring_config") ? 1 : 0

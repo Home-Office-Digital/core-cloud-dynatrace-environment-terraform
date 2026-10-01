@@ -15,18 +15,19 @@ locals {
   zone_ids_by_name = {
     for key, val in var.corecloud_profile_alerting_rules :
     val.management_zone => data.dynatrace_management_zone_v2.zones[key].id...
+    if val.management_zone != ""
   }
 }
 
 data "dynatrace_management_zone_v2" "zones" {
-  for_each = var.corecloud_profile_alerting_rules
+  for_each = { for key, value in var.corecloud_profile_alerting_rules : key => value if value.management_zone != "" }
   name     = each.value.management_zone
 }
 
-resource "dynatrace_webhook_notification" "custom_slack_alerts" { 
+resource "dynatrace_webhook_notification" "custom_slack_alerts" {
   for_each               = var.corecloud_alert_configs
   active                 = each.value.slack_notification_enabled
-  name                   = each.value.slack_notification_name 
+  name                   = each.value.slack_notification_name
   profile                = local.alerting_profile_ids_by_name[each.value.alerting_profile_name]
   secret_url             = var.slack_webhook_urls[coalesce(each.value.slack_webhook_url_key, each.key)]
   url_contains_secret    = true
@@ -37,17 +38,17 @@ resource "dynatrace_webhook_notification" "custom_slack_alerts" {
 }
 
 resource "dynatrace_alerting" "corecloud_profile" {
-    for_each        = var.corecloud_profile_alerting_rules
-    name            = each.value.alerting_profile_name
-    management_zone = data.dynatrace_management_zone_v2.zones[each.key].id
-    rules {
-        dynamic "rule" {
-            for_each = each.value.rules
-            content {
-                include_mode     = rule.value.include_mode
-                tags             = rule.value.tags
-                delay_in_minutes = rule.value.delay_in_minutes
-                severity_level   = rule.key
+  for_each        = var.corecloud_profile_alerting_rules
+  name            = each.value.alerting_profile_name
+  management_zone = each.value.management_zone != "" ? data.dynatrace_management_zone_v2.zones[each.key].id : null
+  rules {
+    dynamic "rule" {
+      for_each = each.value.rules
+      content {
+        include_mode     = rule.value.include_mode
+        tags             = rule.value.tags
+        delay_in_minutes = rule.value.delay_in_minutes
+        severity_level   = rule.key
       }
     }
   }
